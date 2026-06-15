@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeff Builds</title>
+  <meta name="description" content="Jeffrey — recruiter by day, builder by night. Side projects include Letterhome, ClickGuard, and more.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="grain" aria-hidden="true"></div>
+  <div class="spotlight" aria-hidden="true"></div>
+
+  <nav>
+    <span class="logo">jeff<span class="accent">builds</span><span class="cursor-blink">_</span></span>
+    <a class="nav-github" href="https://github.com/officenotfound" target="_blank" rel="noopener">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+      github
+    </a>
+  </nav>
+
+  <section class="hero">
+    <div class="terminal" id="terminal" aria-label="Terminal introduction">
+      <div class="terminal-bar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="terminal-title">jeffrey@jeffbuilds ~ zsh</span>
+      </div>
+      <div class="terminal-body" id="terminal-body">
+        <span class="t-cursor" id="t-cursor">▋</span>
+      </div>
+    </div>
+
+    <div class="hero-sub" id="hero-sub">
+      <p class="hero-tagline">Recruiter by day. Builder by night.</p>
+      <a href="https://gonpr.ca" target="_blank" rel="noopener" class="status-pill">
+        <span class="pulse-dot"></span>
+        currently building: <strong>Go on PR</strong>
+      </a>
+    </div>
+  </section>
+
+  <section class="projects">
+    <p class="section-label">// projects</p>
+    <div class="cards" id="cards">
+
+      <a href="https://letterhome.ca" target="_blank" rel="noopener" class="card card-letterhome" data-magnetic>
+        <div class="card-badge">live</div>
+        <div class="card-icon">
+          <div class="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-body">
+              <div class="envelope-letter"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="scramble-target">letterhome.ca</h3>
+          <p>Print and mail letters from Canada. Built for expats who need physical Canadian post without the trip to the post office.</p>
+          <div class="tags">
+            <span>Node.js</span>
+            <span>SQLite</span>
+            <span>Canada Post</span>
+          </div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a href="https://github.com/officenotfound/Clickguard" target="_blank" rel="noopener" class="card card-clickguard" data-magnetic>
+        <div class="card-badge">open source</div>
+        <div class="card-icon">
+          <div class="mouse-icon">
+            <div class="mouse-body">
+              <div class="mouse-btn mouse-btn-left active"></div>
+              <div class="mouse-btn mouse-btn-right"></div>
+              <div class="mouse-scroll"></div>
+            </div>
+            <div class="click-ripple"></div>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3 class="scramble-target">ClickGuard</h3>
+          <p>macOS menu bar app that kills the Logitech double-click bug. Software debouncing at the OS level — works on every mouse, not just gaming models.</p>
+          <div class="tags">
+            <span>Swift</span>
+            <span>macOS</span>
+            <span>Menu Bar App</span>
+          </div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <a href="https://404officenotfound.com" target="_blank" rel="noopener" class="card card-404" data-magnetic>
+        <div class="card-badge">personal</div>
+        <div class="card-icon">
+          <div class="glitch-text" data-text="404">404</div>
+        </div>
+        <div class="card-content">
+          <h3 class="scramble-target">404officenotfound</h3>
+          <p>Personal domain and creative handle. The digital home base — where the random stuff lives.</p>
+          <div class="tags">
+            <span>Personal</span>
+          </div>
+        </div>
+        <span class="card-arrow" aria-hidden="true">↗</span>
+      </a>
+
+      <div class="card card-wip" data-magnetic>
+        <div class="card-badge card-badge-wip">building</div>
+        <div class="card-icon">
+          <div class="wip-icon">
+            <div class="wip-maple">🍁</div>
+            <div class="wip-bar-wrap">
+              <div class="wip-bar"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card-content">
+          <h3>Go on PR</h3>
+          <p>A website and brand for Canadian permanent residency applicants. Navigating the PR process shouldn't require a law degree.</p>
+          <div class="tags">
+            <span>Coming Soon</span>
+          </div>
+        </div>
+        <span class="card-arrow card-arrow-dim" aria-hidden="true">↗</span>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="more">
+    <p class="section-label">// more coming</p>
+    <p class="more-text">This list keeps growing. More things get built. Check <a href="https://github.com/officenotfound" target="_blank" rel="noopener">GitHub</a> for the latest.</p>
+  </section>
+
+  <footer>
+    <span>built by jeff</span>
+    <span class="footer-sep">·</span>
+    <a href="mailto:404officenotfound@gmail.com">get in touch</a>
+    <span class="footer-sep">·</span>
+    <a href="https://github.com/officenotfound" target="_blank" rel="noopener">github</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
