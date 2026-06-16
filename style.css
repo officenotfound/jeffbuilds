@@ -199,6 +199,10 @@ body.light .icon-moon { display: none; }
   font-family: var(--font-mono);
   font-size: 11px;
   color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 12px;
 }
 
 .terminal-body {
@@ -209,11 +213,35 @@ body.light .icon-moon { display: none; }
   color: #c8c0b4;
   min-height: 160px;
 }
-.t-line { display: block; }
+.terminal-body.interactive {
+  max-height: 340px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.t-line { display: block; word-break: break-word; }
 .t-prompt { color: var(--green); }
 .t-cmd    { color: var(--text); }
-.t-output { color: var(--muted); padding-left: 0; }
+.t-output { color: var(--muted); padding-left: 0; white-space: pre-wrap; }
 .t-output.highlight { color: var(--accent); font-style: italic; }
+.t-output.dim { color: var(--muted); opacity: 0.7; }
+.t-output.t-error { color: #f87171; }
+
+/* interactive input line */
+.t-input-line { display: flex; align-items: baseline; }
+.t-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: inherit;
+  line-height: inherit;
+  caret-color: var(--accent);
+  padding: 0;
+}
+.t-input::placeholder { color: var(--muted); opacity: 0.5; }
 .t-cursor {
   display: inline-block;
   color: var(--accent);
@@ -439,6 +467,45 @@ footer a:hover { color: var(--text); }
 }
 
 /* ── reduced motion ── */
+/* ── matrix rain canvas ── */
+.matrix-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+/* ── CRT / retro mode ── */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0) 0px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0.16) 3px,
+      rgba(0,0,0,0.16) 3px
+    );
+}
+.crt-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.35) 100%);
+}
+body.crt .crt-overlay { opacity: 1; animation: crtFlicker 0.12s infinite steps(2); }
+body.crt { text-shadow: 0 0 2px rgba(77,159,255,0.45); }
+body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
+@keyframes crtFlicker {
+  0%   { opacity: 0.92; }
+  100% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -447,4 +514,5 @@ footer a:hover { color: var(--text); }
     scroll-behavior: auto !important;
   }
   .terminal, .hero-sub, .project { opacity: 1 !important; transform: none !important; }
+  body.crt .crt-overlay { animation: none !important; }
 }
