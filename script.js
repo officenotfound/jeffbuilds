@@ -268,6 +268,7 @@ function runCommand(raw) {
   }
   else if (c === 'matrix') { matrixRain(); print('wake up, neo...', 'highlight'); }
   else if (c === 'pong') { print('booting pong...  [ esc ] to quit, mouse / arrows to move', 'dim'); playPong(); }
+  else if (c === 'tetris') { print('booting tetris...  ← → move · ↑ rotate · space drop · [ esc ] quit', 'dim'); playTetris(); }
   else if (c === 'sudo') { print('nice try. you are not in the sudoers file. this incident will be reported.', 't-error'); }
   else if (c === 'rm' && /(-rf|--no-preserve-root)/.test(arg)) { print('absolutely not.', 't-error'); }
   else if (c === 'coffee') { print('brewing... ☕ always.', 'highlight'); }
@@ -370,8 +371,9 @@ runTerminal();
    pong — CRT takeover of the terminal screen
 ──────────────────────────────────────────────── */
 let pongActive = false;
+let tetrisActive = false;
 function playPong() {
-  if (pongActive) return;
+  if (pongActive || tetrisActive) return;
   pongActive = true;
   if (input) input.blur();
 
@@ -412,13 +414,24 @@ function playPong() {
   let pScore = 0, aScore = 0;
   let over = false, overText = '';
 
+  const baseSpeed = Math.max(2.6, W * 0.0055); // gentle to start
+  let rallyMul = 0.8;                          // ramps up as the rally / match goes on
+
   const ball = {};
   function resetBall(dir) {
     ball.x = W / 2; ball.y = H / 2;
-    const speed = Math.max(4.2, W * 0.009);
-    const angle = (Math.random() * 0.6 - 0.3);
+    const speed = baseSpeed * rallyMul;
+    const angle = (Math.random() * 0.5 - 0.25);
     ball.vx = (dir || (Math.random() > 0.5 ? 1 : -1)) * speed * Math.cos(angle);
-    ball.vy = speed * Math.sin(angle) + (Math.random() - 0.5) * 2;
+    ball.vy = speed * Math.sin(angle) + (Math.random() - 0.5) * 1.5;
+  }
+  function bounce(padY, dir) {
+    rallyMul = Math.min(rallyMul + 0.06, 2.4); // every paddle hit nudges the pace up
+    const rel = Math.max(-1, Math.min(1, (ball.y - (padY + padH / 2)) / (padH / 2)));
+    const spd = baseSpeed * rallyMul;
+    const ang = rel * 0.9;
+    ball.vx = dir * spd * Math.cos(ang);
+    ball.vy = spd * Math.sin(ang);
   }
   resetBall();
 
@@ -455,11 +468,11 @@ function playPong() {
     clampPaddle(player);
 
     if (!over) {
-      // ai movement (eased, imperfect)
+      // ai movement (eased, imperfect, scales gently with pace)
       const aiCenter = ai.y + padH / 2;
-      const aiSpeed = Math.max(3.4, H * 0.012);
-      if (ball.y < aiCenter - 8) ai.y -= aiSpeed;
-      else if (ball.y > aiCenter + 8) ai.y += aiSpeed;
+      const aiSpeed = Math.max(3.0, H * 0.011) * Math.min(1.4, 0.8 + rallyMul * 0.2);
+      if (ball.y < aiCenter - 10) ai.y -= aiSpeed;
+      else if (ball.y > aiCenter + 10) ai.y += aiSpeed;
       clampPaddle(ai);
 
       // ball
@@ -470,14 +483,14 @@ function playPong() {
       // paddle collisions
       if (ball.vx < 0 && ball.x - 4 <= player.x + padW && ball.x > player.x &&
           ball.y >= player.y && ball.y <= player.y + padH) {
-        ball.vx = Math.abs(ball.vx) * 1.04;
-        ball.vy += ((ball.y - (player.y + padH / 2)) / padH) * 6;
+        ball.x = player.x + padW + 4;
+        bounce(player.y, 1);
       }
       const aix = ai.x();
       if (ball.vx > 0 && ball.x + 4 >= aix && ball.x < aix + padW &&
           ball.y >= ai.y && ball.y <= ai.y + padH) {
-        ball.vx = -Math.abs(ball.vx) * 1.04;
-        ball.vy += ((ball.y - (ai.y + padH / 2)) / padH) * 6;
+        ball.x = aix - 4;
+        bounce(ai.y, -1);
       }
 
       // scoring
@@ -539,4 +552,187 @@ function playPong() {
   }
 
   loop();
+}
+
+
+/* ────────────────────────────────────────────────
+   tetris — CRT takeover of the terminal screen
+──────────────────────────────────────────────── */
+function playTetris() {
+  if (pongActive || tetrisActive) return;
+  tetrisActive = true;
+  if (input) input.blur();
+
+  const prevOverflow = body.style.overflow;
+  body.style.overflow = 'hidden';
+  body.scrollTop = 0;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pong';            // reuse the CRT frame styling
+  const canvas = document.createElement('canvas');
+  const scan = document.createElement('div');
+  scan.className = 'pong-scan';
+  const hint = document.createElement('div');
+  hint.className = 'pong-hint';
+  hint.textContent = '← → move · ↑ rotate · ↓ soft · space hard · [ esc ] quit';
+  wrap.appendChild(canvas);
+  wrap.appendChild(scan);
+  wrap.appendChild(hint);
+  body.appendChild(wrap);
+
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = body.clientWidth, H = body.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const COLS = 10, ROWS = 18;
+  const cell = Math.max(8, Math.floor(Math.min(H / ROWS, W / (COLS + 7))));
+  const boardW = cell * COLS, boardH = cell * ROWS;
+  const ox = Math.floor((W - boardW) / 2);
+  const oy = Math.floor((H - boardH) / 2);
+
+  const SHAPES = {
+    I: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],
+    O: [[1,1],[1,1]],
+    T: [[0,1,0],[1,1,1],[0,0,0]],
+    S: [[0,1,1],[1,1,0],[0,0,0]],
+    Z: [[1,1,0],[0,1,1],[0,0,0]],
+    J: [[1,0,0],[1,1,1],[0,0,0]],
+    L: [[0,0,1],[1,1,1],[0,0,0]],
+  };
+  const COLORS = { I:'#4dd0ff', O:'#ffd54d', T:'#b388ff', S:'#6cf0a0', Z:'#ff6b6b', J:'#5b8cff', L:'#ffa64d' };
+  const KEYS = Object.keys(SHAPES);
+
+  const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+  let cur, curX, curY, curColor;
+  let bag = [];
+  let lines = 0, score = 0, over = false;
+
+  function nextType() {
+    if (!bag.length) { bag = KEYS.slice(); for (let i = bag.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [bag[i], bag[j]] = [bag[j], bag[i]]; } }
+    return bag.pop();
+  }
+  function rotate(m) { return m[0].map((_, i) => m.map(r => r[i]).reverse()); }
+  function collide(shape, x, y) {
+    for (let r = 0; r < shape.length; r++)
+      for (let c = 0; c < shape[r].length; c++)
+        if (shape[r][c]) {
+          const bx = x + c, by = y + r;
+          if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+          if (by >= 0 && grid[by][bx]) return true;
+        }
+    return false;
+  }
+  function spawn() {
+    const t = nextType();
+    cur = SHAPES[t].map(r => r.slice());
+    curColor = COLORS[t];
+    curX = ((COLS - cur[0].length) / 2) | 0;
+    curY = -1;
+    if (collide(cur, curX, curY)) { over = true; }
+  }
+  function lock() {
+    for (let r = 0; r < cur.length; r++)
+      for (let c = 0; c < cur[r].length; c++)
+        if (cur[r][c] && curY + r >= 0) grid[curY + r][curX + c] = curColor;
+    let cleared = 0;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (grid[r].every(v => v)) { grid.splice(r, 1); grid.unshift(Array(COLS).fill(null)); cleared++; r++; }
+    }
+    if (cleared) { lines += cleared; score += [0, 100, 300, 500, 800][cleared]; }
+    spawn();
+  }
+  function step() {
+    if (collide(cur, curX, curY + 1)) lock();
+    else curY++;
+  }
+  function hardDrop() {
+    let d = 0;
+    while (!collide(cur, curX, curY + 1)) { curY++; d++; }
+    score += d * 2;
+    lock();
+  }
+  function tryRotate() {
+    const r = rotate(cur);
+    for (const dx of [0, -1, 1, -2, 2]) {
+      if (!collide(r, curX + dx, curY)) { cur = r; curX += dx; return; }
+    }
+  }
+
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); quit(); return; }
+    if (over) return;
+    const k = e.key;
+    if (['ArrowLeft','ArrowRight','ArrowDown','ArrowUp',' ','x','X'].includes(k)) e.preventDefault();
+    if (k === 'ArrowLeft' && !collide(cur, curX - 1, curY)) curX--;
+    else if (k === 'ArrowRight' && !collide(cur, curX + 1, curY)) curX++;
+    else if (k === 'ArrowDown') { if (!collide(cur, curX, curY + 1)) { curY++; score += 1; } dropAcc = 0; }
+    else if (k === 'ArrowUp' || k === 'x' || k === 'X') tryRotate();
+    else if (k === ' ') hardDrop();
+  }
+  window.addEventListener('keydown', onKey);
+
+  function block(x, y, color, glow) {
+    ctx.fillStyle = color;
+    if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 8; }
+    ctx.fillRect(ox + x * cell + 1, oy + y * cell + 1, cell - 2, cell - 2);
+    ctx.shadowBlur = 0;
+  }
+
+  let raf, last = performance.now(), dropAcc = 0;
+  function frame(now) {
+    const dt = now - last; last = now;
+    if (!over) {
+      const level = Math.floor(lines / 8);
+      const interval = Math.max(110, 700 - level * 70);
+      dropAcc += dt;
+      while (dropAcc >= interval) { step(); dropAcc -= interval; if (over) break; }
+    }
+
+    // bg
+    ctx.fillStyle = '#060a08'; ctx.fillRect(0, 0, W, H);
+    // well
+    ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(ox, oy, boardW, boardH);
+    ctx.strokeStyle = 'rgba(108,240,160,0.25)'; ctx.strokeRect(ox + 0.5, oy + 0.5, boardW, boardH);
+    // locked
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (grid[r][c]) block(c, r, grid[r][c], true);
+    // current
+    if (!over) for (let r = 0; r < cur.length; r++) for (let c = 0; c < cur[r].length; c++) if (cur[r][c] && curY + r >= 0) block(curX + c, curY + r, curColor, true);
+
+    // hud
+    ctx.fillStyle = '#6cf0a0'; ctx.textAlign = 'left';
+    ctx.font = '700 13px Menlo, monospace';
+    const hx = Math.max(6, ox - 84);
+    ctx.fillText('TETRIS', hx, oy + 16);
+    ctx.font = '11px Menlo, monospace';
+    ctx.fillStyle = 'rgba(108,240,160,0.8)';
+    ctx.fillText('lines  ' + lines, hx, oy + 40);
+    ctx.fillText('score  ' + score, hx, oy + 58);
+    ctx.fillText('level  ' + (Math.floor(lines / 8) + 1), hx, oy + 76);
+
+    if (over) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#6cf0a0';
+      ctx.font = '700 20px Menlo, monospace';
+      ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
+      ctx.font = '12px Menlo, monospace'; ctx.fillStyle = 'rgba(108,240,160,0.7)';
+      ctx.fillText('[ esc ] to return', W / 2, H / 2 + 20);
+    }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function quit() {
+    if (!tetrisActive) return;
+    tetrisActive = false;
+    cancelAnimationFrame(raf);
+    window.removeEventListener('keydown', onKey);
+    wrap.remove();
+    body.style.overflow = prevOverflow;
+    if (input && window.matchMedia('(pointer: fine)').matches) input.focus();
+    print('thanks for playing.', 'dim');
+    scrollTermToBottom();
+  }
+
+  spawn();
+  raf = requestAnimationFrame(frame);
 }
