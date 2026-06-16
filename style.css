@@ -499,13 +499,28 @@ body.light .icon-moon { display: none; }
 }
 
 /* glitch 404 */
+.brand-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.brand-404-sub {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .glitch-text {
   font-family: var(--font-mono);
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--text);
   position: relative;
   letter-spacing: -1px;
+  line-height: 1;
 }
 .glitch-text::before,
 .glitch-text::after {
