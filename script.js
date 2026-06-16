@@ -343,14 +343,7 @@ document.addEventListener('keydown', e => {
 /* ────────────────────────────────────────────────
    boot — runs last, after all definitions exist
 ──────────────────────────────────────────────── */
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (reduceMotion) {
-  // skip the typewriter: show the final terminal state instantly, then go interactive
-  const staticBlock = document.querySelector('.t-static');
-  if (staticBlock) staticBlock.style.display = 'block';
-  cursor.style.display = 'none';
-  document.getElementById('hero-sub').classList.add('visible');
-  initPrompt();
-} else {
-  runTerminal();
-}
+// always type the intro; hide the crawlable static fallback now that JS is running
+const staticBlock = document.querySelector('.t-static');
+if (staticBlock) staticBlock.style.display = 'none';
+runTerminal();
