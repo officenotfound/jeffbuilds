@@ -32,12 +32,12 @@ function jitter(base, variance = 0.4) {
 async function typeLine(text, el) {
   for (const ch of text) {
     el.textContent += ch;
-    await sleep(jitter(55));
+    await sleep(jitter(32));
   }
 }
 
 async function runTerminal() {
-  await sleep(500);
+  await sleep(300);
 
   for (const line of lines) {
     const el = document.createElement('div');
@@ -53,12 +53,12 @@ async function runTerminal() {
       cmd.className = 't-cmd';
       el.appendChild(cmd);
       await typeLine(line.text, cmd);
-      await sleep(jitter(280, 0.5));
+      await sleep(jitter(170, 0.5));
     } else {
       el.className += ' t-output' + (line.highlight ? ' highlight' : '');
-      await sleep(80);
+      await sleep(50);
       await typeLine(line.text, el);
-      await sleep(jitter(160));
+      await sleep(jitter(100));
     }
   }
 
