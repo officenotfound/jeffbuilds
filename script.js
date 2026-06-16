@@ -620,12 +620,14 @@ function playTetris() {
         }
     return false;
   }
+  function dropInterval() { return Math.max(110, 700 - Math.floor(lines / 8) * 70); }
   function spawn() {
     const t = nextType();
     cur = SHAPES[t].map(r => r.slice());
     curColor = COLORS[t];
     curX = ((COLS - cur[0].length) / 2) | 0;
-    curY = -1;
+    curY = 0;                      // appear in the well immediately
+    dropAcc = dropInterval() / 2;  // half-tick head start so the next piece comes twice as fast
     if (collide(cur, curX, curY)) { over = true; }
   }
   function lock() {
@@ -680,8 +682,7 @@ function playTetris() {
   function frame(now) {
     const dt = now - last; last = now;
     if (!over) {
-      const level = Math.floor(lines / 8);
-      const interval = Math.max(110, 700 - level * 70);
+      const interval = dropInterval();
       dropAcc += dt;
       while (dropAcc >= interval) { step(); dropAcc -= interval; if (over) break; }
     }
