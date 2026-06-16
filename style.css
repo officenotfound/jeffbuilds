@@ -8,8 +8,8 @@
   --border-hover: #333;
   --text: #e2dbd0;
   --muted: #5a5550;
-  --accent: #f0a020;
-  --accent-dim: rgba(240, 160, 32, 0.12);
+  --accent: #4d9fff;
+  --accent-dim: rgba(77, 159, 255, 0.12);
   --green: #4ade80;
   --green-dim: rgba(74, 222, 128, 0.15);
   --red: #f87171;
@@ -28,14 +28,14 @@ body.light {
   --border-hover: #c8bfb4;
   --text: #1a1612;
   --muted: #8a7f74;
-  --accent: #c47f00;
-  --accent-dim: rgba(196, 127, 0, 0.1);
+  --accent: #2563eb;
+  --accent-dim: rgba(37, 99, 235, 0.1);
   --green: #16a34a;
   --green-dim: rgba(22, 163, 74, 0.12);
 }
 
 body.light .grain { opacity: 0.025; }
-body.light .spotlight { background: radial-gradient(ellipse at center, rgba(196,127,0,0.06) 0%, transparent 70%); }
+body.light .spotlight { background: radial-gradient(ellipse at center, rgba(37,99,235,0.06) 0%, transparent 70%); }
 body.light .terminal { background: #faf8f5; box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 24px 80px rgba(0,0,0,0.1); }
 body.light .terminal-bar { background: #f0ece6; }
 body.light .terminal-body { color: #5a4f44; }
@@ -80,7 +80,7 @@ body {
   transform: translateX(-50%);
   width: 80vw;
   height: 80vh;
-  background: radial-gradient(ellipse at center, rgba(240,160,32,0.07) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(77,159,255,0.08) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
@@ -169,7 +169,7 @@ body.light .icon-moon { display: none; }
   background: #0f0f0f;
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(240,160,32,0.04);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 24px 80px rgba(0,0,0,0.6), 0 0 60px rgba(77,159,255,0.06);
   overflow: hidden;
   opacity: 0;
   transform: translateY(20px);
@@ -586,7 +586,7 @@ body.light .icon-moon { display: none; }
 /* card-specific accents */
 .card-letterhome::before { background: radial-gradient(ellipse at top left, rgba(240,235,222,0.06), transparent 60%); }
 .card-letterhome:hover::before { opacity: 1; }
-.card-clickguard::before { background: radial-gradient(ellipse at top left, rgba(240,160,32,0.06), transparent 60%); }
+.card-clickguard::before { background: radial-gradient(ellipse at top left, rgba(77,159,255,0.06), transparent 60%); }
 .card-clickguard:hover::before { opacity: 1; }
 .card-404::before { background: radial-gradient(ellipse at top left, rgba(96,165,250,0.06), transparent 60%); }
 .card-404:hover::before { opacity: 1; }
