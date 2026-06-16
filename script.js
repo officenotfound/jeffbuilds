@@ -12,11 +12,11 @@ toggle.addEventListener('click', () => {
 /* ── terminal typewriter ── */
 const lines = [
   { type: 'cmd',    text: 'whoami' },
-  { type: 'output', text: 'jeff. creative. remote. i see problems and build fixes.', highlight: true },
+  { type: 'output', text: 'jeff. i build things for the web, mostly out of spite.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
   { type: 'output', text: 'letterhome/   clickguard/   goon-pr/   404/' },
-  { type: 'cmd',    text: 'cat disclaimer.txt' },
-  { type: 'output', text: 'none of these were assigned to me.', highlight: true },
+  { type: 'cmd',    text: 'cat why.txt' },
+  { type: 'output', text: 'the day job funds the domains. this is the real one.', highlight: true },
 ];
 
 const body = document.getElementById('terminal-body');
