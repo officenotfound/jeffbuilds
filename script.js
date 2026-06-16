@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: 'letterhome/   clickguard/   go-on-pr/   404/' },
+  { type: 'output', text: "letterhome/   clickguard/   'Go on PR'/   404/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
