@@ -302,7 +302,6 @@ function runCommand(raw) {
 let matrixRunning = false;
 function matrixRain() {
   if (matrixRunning) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   matrixRunning = true;
 
   const canvas = document.createElement('canvas');
