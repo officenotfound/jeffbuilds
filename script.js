@@ -201,6 +201,21 @@ function scrollTermToBottom() {
   body.scrollTop = body.scrollHeight;
 }
 
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const SWEAR_RE = /\b(f+u+c+k\w*|f+c+k\w*|fuk\w*|wtf|stfu|gtfo|fml|sh[i1]t\w*|bull?sh[i1]t\w*|b[i1]tch\w*|bastard\w*|assh\w*|ass|jacka\w*|d[i1]ck\w*|piss\w*|crap\w*|damn\w*|dammit|goddamn\w*|bollocks|bugger|wank\w*|prick|c+u+n+t\w*|motherf\w*|twat|arse\w*|screw\s*you|sod\s*off)\b/i;
+const SWEAR_REPLIES = [
+  'language. this terminal has feelings too.',
+  'wow. and you kiss your keyboard with that mouth?',
+  'error: profanity buffer overflow. take a breath.',
+  '$ sudo apt install chill',
+  'noted. my creator swears at me daily, so.',
+  'bleep. that one is going straight in the commit message.',
+  'respectfully... same, honestly.',
+  '404: filter not found. carry on then.',
+  'permission denied: that word is above your clearance.',
+  'easy, tiger. it is just a portfolio.',
+];
+
 function runCommand(raw) {
   const cmd = raw.trim();
   if (cmd) echoCommand(cmd);
@@ -258,6 +273,7 @@ function runCommand(raw) {
   else if (c === 'hire' || cmd.toLowerCase() === 'hire me') { printRaw('let’s talk → <a href="mailto:404officenotfound@gmail.com" style="color:var(--accent)">404officenotfound@gmail.com</a>'); }
   else if (c === 'exit' || c === 'q') { print('there is no escape. (but you can scroll.)', 'dim'); }
   else if (c === 'echo') { print(arg); }
+  else if (SWEAR_RE.test(cmd)) { print(pick(SWEAR_REPLIES), 'highlight'); }
   else { print('command not found: ' + name + '. type `help`.', 't-error'); }
 
   scrollTermToBottom();
