@@ -575,8 +575,9 @@ body.light .icon-moon { display: none; }
 .card-clickguard:hover::before { opacity: 1; }
 .card-404::before { background: radial-gradient(ellipse at top left, rgba(96,165,250,0.06), transparent 60%); }
 .card-404:hover::before { opacity: 1; }
-.card-wip { opacity: 0.75; cursor: default; }
-.card-wip:hover { border-color: rgba(74,222,128,0.25); opacity: 1; }
+.card-gonpr::before { background: radial-gradient(ellipse at top left, rgba(200,150,255,0.06), transparent 60%); }
+.card-gonpr:hover::before { opacity: 1; }
+.gonpr-icon { font-size: 32px; line-height: 1; }
 
 /* scroll reveal */
 .card {
