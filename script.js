@@ -82,50 +82,6 @@ window.addEventListener('scroll', () => {
   document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 20);
 }, { passive: true });
 
-/* ── scramble text on hover ── */
-const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&';
-
-function scramble(el) {
-  const original = el.dataset.original || el.textContent;
-  el.dataset.original = original;
-  let i = 0;
-  clearInterval(el._scrambleTimer);
-  el._scrambleTimer = setInterval(() => {
-    el.textContent = original.split('').map((ch, idx) => {
-      if (ch === ' ' || ch === '.') return ch;
-      if (idx < i) return original[idx];
-      return CHARS[Math.floor(Math.random() * CHARS.length)];
-    }).join('');
-    i += 0.6;
-    if (i >= original.length) {
-      el.textContent = original;
-      clearInterval(el._scrambleTimer);
-    }
-  }, 28);
-}
-
-document.querySelectorAll('.scramble-target').forEach(el => {
-  el.closest('.card').addEventListener('mouseenter', () => scramble(el));
-});
-
-/* ── magnetic cards ── */
-document.querySelectorAll('[data-magnetic]').forEach(el => {
-  const strength = 0.1;
-
-  el.addEventListener('mousemove', e => {
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left - r.width  / 2) * strength;
-    const y = (e.clientY - r.top  - r.height / 2) * strength;
-    el.style.transform = `translate(${x}px, ${y}px)`;
-  });
-
-  el.addEventListener('mouseleave', () => {
-    el.style.transition = 'transform 0.4s cubic-bezier(0.23,1,0.32,1), opacity 0.5s ease, border-color 0.25s, box-shadow 0.25s';
-    el.style.transform = 'translate(0,0)';
-    setTimeout(() => { el.style.transition = ''; }, 400);
-  });
-});
-
 /* ── scroll reveal ── */
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
@@ -136,7 +92,7 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.1 });
 
-document.querySelectorAll('.card').forEach(el => observer.observe(el));
+document.querySelectorAll('.project').forEach(el => observer.observe(el));
 
 /* ── spotlight follows mouse (subtle) ── */
 const spotlight = document.querySelector('.spotlight');
