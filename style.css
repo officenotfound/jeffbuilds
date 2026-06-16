@@ -392,7 +392,9 @@ body.light .icon-moon { display: none; }
 .more-text {
   font-size: 15px;
   color: var(--muted);
-  max-width: 400px;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
 }
 .more-text a {
   color: var(--text);
