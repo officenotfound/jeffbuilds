@@ -16,7 +16,7 @@ const lines = [
   { type: 'cmd',    text: 'ls ./shipped' },
   { type: 'output', text: 'letterhome/   clickguard/   goon-pr/   404/' },
   { type: 'cmd',    text: 'cat why.txt' },
-  { type: 'output', text: 'the day job funds the domains. this is the real one.', highlight: true },
+  { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
 
 const body = document.getElementById('terminal-body');
