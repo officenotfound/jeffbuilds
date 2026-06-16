@@ -202,7 +202,7 @@ function scrollTermToBottom() {
 }
 
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const SWEAR_RE = /\b(f+u+c+k\w*|f+c+k\w*|fuk\w*|wtf|stfu|gtfo|fml|sh[i1]t\w*|bull?sh[i1]t\w*|b[i1]tch\w*|bastard\w*|assh\w*|ass|jacka\w*|d[i1]ck\w*|piss\w*|crap\w*|damn\w*|dammit|goddamn\w*|bollocks|bugger|wank\w*|prick|c+u+n+t\w*|motherf\w*|twat|arse\w*|screw\s*you|sod\s*off)\b/i;
+const SWEAR_RE = /\b(f+u+c+k\w*|f+c+k\w*|fuk\w*|wtf|wtaf|stfu|gtfo|fml|sh[i1]t\w*|bull?sh[i1]t\w*|dipsh\w*|b[i1]tch\w*|bastard\w*|assh\w*|ass|assh?at|assclown|jacka\w*|dumba\w*|dumbf\w*|d[i1]ck\w*|piss\w*|crap\w*|damn\w*|dammit|goddamn\w*|bollocks|bollox|bugger|wank\w*|prick|c+u+n+t\w*|motherf\w*|twat|arse\w*|douche\w*|knob(head|end)?|tosser|slag|slut\w*|whore\w*|skank\w*|scumbag|ballsack|screw\s*you|sod\s*off|shut\s*up|suck\w*|loser|stupid\w*|idiot\w*|moron\w*|imbecile|retard\w*)\b/i;
 const SWEAR_REPLIES = [
   'language. this terminal has feelings too.',
   'wow. and you kiss your keyboard with that mouth?',
