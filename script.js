@@ -12,7 +12,7 @@ toggle.addEventListener('click', () => {
 /* ── terminal typewriter ── */
 const lines = [
   { type: 'cmd',    text: 'whoami' },
-  { type: 'output', text: 'jeff. i build things for the web, mostly out of spite.', highlight: true },
+  { type: 'output', text: 'jeff. nomad. problem solver. builder. curious.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
   { type: 'output', text: 'letterhome/   clickguard/   goon-pr/   404/' },
   { type: 'cmd',    text: 'cat why.txt' },
