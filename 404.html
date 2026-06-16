@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>document.documentElement.className += ' js';</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 · Page Not Found</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .nf {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 24px; gap: 18px;
+    }
+    .nf .glitch-text { font-size: 88px; letter-spacing: -2px; }
+    .nf h1 { font-size: 20px; font-weight: 600; }
+    .nf p { color: var(--muted); font-family: var(--font-mono); font-size: 14px; }
+    .nf a {
+      font-family: var(--font-mono); font-size: 14px;
+      color: var(--accent); text-decoration: none;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 18px; margin-top: 8px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .nf a:hover { border-color: var(--accent); background: var(--accent-dim); }
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="spotlight" aria-hidden="true"></div>
+
+  <main class="nf">
+    <div class="glitch-text" data-text="404">404</div>
+    <h1>Office not found.</h1>
+    <p>$ cd /the-page-you-wanted &nbsp;→ &nbsp;no such file or directory</p>
+    <a href="/">cd ~/home</a>
+  </main>
+
+  <script>
+    // re-trigger the glitch effect on a loop for the big 404
+    const g = document.querySelector('.glitch-text');
+    g.classList.add('nf-glitch');
+  </script>
+  <style>
+    .glitch-text::before, .glitch-text::after { content: attr(data-text); position: absolute; top: 0; left: 0; opacity: 0; }
+    .nf-glitch::before { color: #f87171; clip-path: polygon(0 0,100% 0,100% 45%,0 45%); animation: glitch-top 0.45s steps(1) infinite; opacity: 1; }
+    .nf-glitch::after  { color: #4d9fff; clip-path: polygon(0 55%,100% 55%,100% 100%,0 100%); animation: glitch-bot 0.45s steps(1) 0.05s infinite; opacity: 1; }
+    @keyframes glitch-top { 0%{transform:translate(0)} 25%{transform:translate(-3px,-1px)} 50%{transform:translate(2px,0)} 75%{transform:translate(-1px,1px)} 100%{transform:translate(0)} }
+    @keyframes glitch-bot { 0%{transform:translate(0)} 25%{transform:translate(3px,1px)} 50%{transform:translate(-2px,0)} 75%{transform:translate(1px,-1px)} 100%{transform:translate(0)} }
+    .glitch-text { position: relative; }
+    @media (prefers-reduced-motion: reduce) {
+      .nf-glitch::before, .nf-glitch::after { animation: none !important; opacity: 0 !important; }
+    }
+  </style>
+</body>
+</html>

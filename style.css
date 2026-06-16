@@ -221,6 +221,11 @@ body.light .icon-moon { display: none; }
   font-size: 13px;
 }
 
+/* static fallback: shown to no-JS / crawlers, hidden once JS takes over */
+.js .t-static { display: none; }
+html:not(.js) .t-cursor { display: none; }
+html:not(.js) .hero-sub { opacity: 1; }
+
 /* ── hero sub ── */
 .hero-sub {
   display: flex;
@@ -431,4 +436,15 @@ footer a:hover { color: var(--text); }
   .projects { padding: 60px 16px; }
   .more { padding: 0 16px 60px; }
   .terminal-body { font-size: 12px; padding: 16px; }
+}
+
+/* ── reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .terminal, .hero-sub, .project { opacity: 1 !important; transform: none !important; }
 }

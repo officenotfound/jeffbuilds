@@ -75,7 +75,16 @@ async function runTerminal() {
   document.getElementById('hero-sub').classList.add('visible');
 }
 
-runTerminal();
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduceMotion) {
+  // skip the typewriter: show the final terminal state instantly
+  const staticBlock = document.querySelector('.t-static');
+  if (staticBlock) staticBlock.style.display = 'block';
+  cursor.style.display = 'none';
+  document.getElementById('hero-sub').classList.add('visible');
+} else {
+  runTerminal();
+}
 
 /* ── nav scroll class ── */
 window.addEventListener('scroll', () => {
