@@ -572,12 +572,8 @@ function playTetris() {
   const canvas = document.createElement('canvas');
   const scan = document.createElement('div');
   scan.className = 'pong-scan';
-  const hint = document.createElement('div');
-  hint.className = 'pong-hint';
-  hint.textContent = '← → move · ↑ rotate · ↓ soft · space hard · [ esc ] quit';
   wrap.appendChild(canvas);
   wrap.appendChild(scan);
-  wrap.appendChild(hint);
   body.appendChild(wrap);
 
   const ctx = canvas.getContext('2d');
@@ -710,6 +706,13 @@ function playTetris() {
     ctx.fillText('lines  ' + lines, hx, oy + 40);
     ctx.fillText('score  ' + score, hx, oy + 58);
     ctx.fillText('level  ' + (Math.floor(lines / 8) + 1), hx, oy + 76);
+
+    // controls (right gutter)
+    const rx = ox + boardW + 14;
+    ctx.fillStyle = '#6cf0a0'; ctx.font = '700 12px Menlo, monospace';
+    ctx.fillText('CONTROLS', rx, oy + 16);
+    ctx.font = '11px Menlo, monospace'; ctx.fillStyle = 'rgba(108,240,160,0.8)';
+    ['← →  move', '↑    rotate', '↓    soft', 'space hard', 'esc  quit'].forEach((t, i) => ctx.fillText(t, rx, oy + 40 + i * 18));
 
     if (over) {
       ctx.textAlign = 'center'; ctx.fillStyle = '#6cf0a0';
