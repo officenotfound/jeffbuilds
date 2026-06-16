@@ -212,6 +212,7 @@ body.light .icon-moon { display: none; }
   line-height: 1.8;
   color: #c8c0b4;
   min-height: 160px;
+  position: relative;
 }
 .terminal-body.interactive {
   max-height: 340px;
@@ -472,6 +473,45 @@ footer a:hover { color: var(--text); }
   position: fixed;
   inset: 0;
   z-index: 9998;
+  pointer-events: none;
+}
+
+/* ── pong (CRT takeover of the terminal body) ── */
+.pong {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: #060a08;
+  overflow: hidden;
+  cursor: none;
+}
+.pong canvas { display: block; width: 100%; height: 100%; }
+.pong .pong-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0,0,0,0) 0px,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.28) 3px,
+    rgba(0,0,0,0.28) 3px
+  );
+}
+.pong .pong-scan::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.45) 100%);
+}
+.pong .pong-hint {
+  position: absolute;
+  bottom: 6px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #6cf0a0;
+  opacity: 0.75;
   pointer-events: none;
 }
 

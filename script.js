@@ -267,6 +267,7 @@ function runCommand(raw) {
     const st = body.querySelector('.t-static'); if (st) st.remove();
   }
   else if (c === 'matrix') { matrixRain(); print('wake up, neo...', 'highlight'); }
+  else if (c === 'pong') { print('booting pong...  [ esc ] to quit, mouse / arrows to move', 'dim'); playPong(); }
   else if (c === 'sudo') { print('nice try. you are not in the sudoers file. this incident will be reported.', 't-error'); }
   else if (c === 'rm' && /(-rf|--no-preserve-root)/.test(arg)) { print('absolutely not.', 't-error'); }
   else if (c === 'coffee') { print('brewing... ☕ always.', 'highlight'); }
@@ -363,3 +364,179 @@ document.addEventListener('keydown', e => {
 const staticBlock = document.querySelector('.t-static');
 if (staticBlock) staticBlock.style.display = 'none';
 runTerminal();
+
+
+/* ────────────────────────────────────────────────
+   pong — CRT takeover of the terminal screen
+──────────────────────────────────────────────── */
+let pongActive = false;
+function playPong() {
+  if (pongActive) return;
+  pongActive = true;
+  if (input) input.blur();
+
+  const prevOverflow = body.style.overflow;
+  body.style.overflow = 'hidden';
+  body.scrollTop = 0;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pong';
+  const canvas = document.createElement('canvas');
+  const scan = document.createElement('div');
+  scan.className = 'pong-scan';
+  const hint = document.createElement('div');
+  hint.className = 'pong-hint';
+  hint.textContent = 'first to 7  ·  [ esc ] quit';
+  wrap.appendChild(canvas);
+  wrap.appendChild(scan);
+  wrap.appendChild(hint);
+  body.appendChild(wrap);
+
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let W, H;
+  function resize() {
+    W = body.clientWidth;
+    H = body.clientHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+
+  const GREEN = '#6cf0a0';
+  const padW = 7;
+  let padH = Math.max(46, H * 0.2);
+  const player = { x: 16, y: H / 2 - padH / 2 };
+  const ai = { x: () => W - 16 - padW, y: H / 2 - padH / 2 };
+  let pScore = 0, aScore = 0;
+  let over = false, overText = '';
+
+  const ball = {};
+  function resetBall(dir) {
+    ball.x = W / 2; ball.y = H / 2;
+    const speed = Math.max(4.2, W * 0.009);
+    const angle = (Math.random() * 0.6 - 0.3);
+    ball.vx = (dir || (Math.random() > 0.5 ? 1 : -1)) * speed * Math.cos(angle);
+    ball.vy = speed * Math.sin(angle) + (Math.random() - 0.5) * 2;
+  }
+  resetBall();
+
+  // input
+  let targetY = null;
+  const keys = {};
+  function onMove(e) {
+    const r = canvas.getBoundingClientRect();
+    const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+    targetY = cy - padH / 2;
+  }
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); quit(); return; }
+    if (['ArrowUp', 'ArrowDown', 'w', 's', 'W', 'S'].includes(e.key)) {
+      e.preventDefault();
+      keys[e.key.toLowerCase()] = e.type === 'keydown';
+    }
+  }
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); onMove(e); }, { passive: false });
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('keyup', onKey);
+  window.addEventListener('resize', resize);
+
+  function clampPaddle(p) { p.y = Math.max(0, Math.min(H - padH, p.y)); }
+
+  let raf;
+  function loop() {
+    // player movement
+    if (targetY !== null) player.y += (targetY - player.y) * 0.35;
+    const kbSpeed = Math.max(5, H * 0.02);
+    if (keys['arrowup'] || keys['w']) { player.y -= kbSpeed; targetY = null; }
+    if (keys['arrowdown'] || keys['s']) { player.y += kbSpeed; targetY = null; }
+    clampPaddle(player);
+
+    if (!over) {
+      // ai movement (eased, imperfect)
+      const aiCenter = ai.y + padH / 2;
+      const aiSpeed = Math.max(3.4, H * 0.012);
+      if (ball.y < aiCenter - 8) ai.y -= aiSpeed;
+      else if (ball.y > aiCenter + 8) ai.y += aiSpeed;
+      clampPaddle(ai);
+
+      // ball
+      ball.x += ball.vx; ball.y += ball.vy;
+      if (ball.y < 4) { ball.y = 4; ball.vy *= -1; }
+      if (ball.y > H - 4) { ball.y = H - 4; ball.vy *= -1; }
+
+      // paddle collisions
+      if (ball.vx < 0 && ball.x - 4 <= player.x + padW && ball.x > player.x &&
+          ball.y >= player.y && ball.y <= player.y + padH) {
+        ball.vx = Math.abs(ball.vx) * 1.04;
+        ball.vy += ((ball.y - (player.y + padH / 2)) / padH) * 6;
+      }
+      const aix = ai.x();
+      if (ball.vx > 0 && ball.x + 4 >= aix && ball.x < aix + padW &&
+          ball.y >= ai.y && ball.y <= ai.y + padH) {
+        ball.vx = -Math.abs(ball.vx) * 1.04;
+        ball.vy += ((ball.y - (ai.y + padH / 2)) / padH) * 6;
+      }
+
+      // scoring
+      if (ball.x < -10) { aScore++; checkWin(); resetBall(1); }
+      if (ball.x > W + 10) { pScore++; checkWin(); resetBall(-1); }
+    }
+
+    // draw
+    ctx.fillStyle = '#060a08';
+    ctx.fillRect(0, 0, W, H);
+    // net
+    ctx.strokeStyle = 'rgba(108,240,160,0.3)';
+    ctx.setLineDash([6, 10]);
+    ctx.beginPath(); ctx.moveTo(W / 2, 0); ctx.lineTo(W / 2, H); ctx.stroke();
+    ctx.setLineDash([]);
+    // score
+    ctx.fillStyle = 'rgba(108,240,160,0.85)';
+    ctx.font = '700 26px Menlo, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(pScore, W / 2 - 40, 32);
+    ctx.fillText(aScore, W / 2 + 40, 32);
+    // glow paddles + ball
+    ctx.shadowColor = GREEN; ctx.shadowBlur = 12; ctx.fillStyle = GREEN;
+    ctx.fillRect(player.x, player.y, padW, padH);
+    ctx.fillRect(ai.x(), ai.y, padW, padH);
+    ctx.fillRect(ball.x - 4, ball.y - 4, 8, 8);
+    ctx.shadowBlur = 0;
+
+    if (over) {
+      ctx.fillStyle = GREEN;
+      ctx.font = '700 22px Menlo, monospace';
+      ctx.fillText(overText, W / 2, H / 2 - 4);
+      ctx.font = '12px Menlo, monospace';
+      ctx.fillStyle = 'rgba(108,240,160,0.7)';
+      ctx.fillText('[ esc ] to return', W / 2, H / 2 + 22);
+    }
+
+    raf = requestAnimationFrame(loop);
+  }
+
+  function checkWin() {
+    if (pScore >= 7) { over = true; overText = 'YOU WIN'; }
+    else if (aScore >= 7) { over = true; overText = 'GAME OVER'; }
+  }
+
+  function quit() {
+    if (!pongActive) return;
+    pongActive = false;
+    cancelAnimationFrame(raf);
+    canvas.removeEventListener('mousemove', onMove);
+    window.removeEventListener('keydown', onKey);
+    window.removeEventListener('keyup', onKey);
+    window.removeEventListener('resize', resize);
+    wrap.remove();
+    body.style.overflow = prevOverflow;
+    if (input && window.matchMedia('(pointer: fine)').matches) input.focus();
+    print('thanks for playing.', 'dim');
+    scrollTermToBottom();
+  }
+
+  loop();
+}
