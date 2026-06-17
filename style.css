@@ -372,6 +372,14 @@ html:not(.js) .hero-sub { opacity: 1; }
   align-items: center;
   gap: 8px;
 }
+.project-meta .wip {
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-right: 8px;
+  opacity: 0.9;
+}
 .project-arrow {
   display: inline-block;
   opacity: 0;
