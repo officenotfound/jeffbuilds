@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
+  { type: 'output', text: "Conciera/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -101,6 +101,12 @@ document.addEventListener('mousemove', e => {
    interactive terminal
 ──────────────────────────────────────────────── */
 const projects = {
+  conciera: {
+    name: 'Conciera', url: 'https://conciera.ca',
+    desc: 'An AI phone front desk for Canadian healthcare clinics that answers, books, and routes patient calls.',
+    stack: 'Next.js · Supabase · Vapi · Twilio',
+    aliases: ['conciera']
+  },
   letterhome: {
     name: 'Letterhome', url: 'https://letterhome.ca',
     desc: 'Print and mail real letters to Canada from anywhere. No Canadian address required.',
@@ -278,7 +284,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Letterhome/   ClickGuard/   Go-on-PR/   404/');
+    print('Conciera/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
@@ -289,8 +295,8 @@ function runCommand(raw) {
     print('the stuff listed here is the work i actually care about.', 'dim');
   }
   else if (c === 'now') {
-    print('currently: keeping the projects alive and poking at new ideas.');
-    print('latest ship: Go on PR.', 'dim');
+    print('currently building: Conciera, an AI phone front desk for clinics.');
+    print('also keeping the other projects alive and poking at new ideas.', 'dim');
     print('always up for an interesting problem.', 'dim');
   }
   else if (c === 'stats') {
