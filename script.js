@@ -161,11 +161,31 @@ function initPrompt() {
   body.appendChild(inputLine);
 
   body.addEventListener('click', () => input.focus());
+
+  const history = [];
+  let hi = 0;
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       const val = input.value;
+      if (val.trim()) history.push(val);
+      hi = history.length;
       input.value = '';
       runCommand(val);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (history.length) { hi = Math.max(0, hi - 1); input.value = history[hi]; }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (history.length) { hi = Math.min(history.length, hi + 1); input.value = history[hi] || ''; }
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const v = input.value.trim().toLowerCase();
+      if (!v) return;
+      const matches = COMMANDS.filter(c => c.startsWith(v));
+      if (matches.length === 1) input.value = matches[0] + ' ';
+      else if (matches.length > 1) { echoCommand(input.value); print(matches.join('   '), 'dim'); scrollTermToBottom(); }
+    } else if (soundOn && e.key.length === 1) {
+      clickSound();
     }
   });
 
@@ -202,6 +222,25 @@ function scrollTermToBottom() {
 }
 
 const pick = a => a[Math.floor(Math.random() * a.length)];
+const COMMANDS = ['help', 'ls', 'cat', 'open', 'whoami', 'about', 'now', 'stats', 'theme', 'crt', 'sound', 'contact', 'clear', 'pong', 'tetris', 'snake'];
+
+/* ── optional keyboard click sound ── */
+let soundOn = false;
+let audioCtx = null;
+function clickSound() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(420 + Math.random() * 80, t);
+    gain.gain.setValueAtTime(0.04, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + 0.05);
+  } catch (e) { /* no audio */ }
+}
 const SWEAR_RE = /\b(f+u+c+k\w*|f+c+k\w*|fuk\w*|wtf|wtaf|stfu|gtfo|fml|sh[i1]t\w*|bull?sh[i1]t\w*|dipsh\w*|b[i1]tch\w*|bastard\w*|assh\w*|ass|assh?at|assclown|jacka\w*|dumba\w*|dumbf\w*|d[i1]ck\w*|piss\w*|crap\w*|damn\w*|dammit|goddamn\w*|bollocks|bollox|bugger|wank\w*|prick|c+u+n+t\w*|motherf\w*|twat|arse\w*|douche\w*|knob(head|end)?|tosser|slag|slut\w*|whore\w*|skank\w*|scumbag|ballsack|screw\s*you|sod\s*off|shut\s*up|suck\w*|loser|stupid\w*|idiot\w*|moron\w*|imbecile|retard\w*)\b/i;
 const SWEAR_REPLIES = [
   'language. this terminal has feelings too.',
@@ -229,11 +268,14 @@ function runCommand(raw) {
     print('  ls                 list projects', 'dim');
     print('  cat <project>      details + stack', 'dim');
     print('  open <project>     launch a project', 'dim');
-    print('  whoami             who is this guy', 'dim');
-    print('  theme              flip light / dark', 'dim');
-    print('  crt                retro monitor mode', 'dim');
+    print('  about / now        who i am, what i am up to', 'dim');
+    print('  whoami / stats     the short version', 'dim');
+    print('  theme / crt        flip the lights / retro mode', 'dim');
+    print('  sound              toggle keyboard clicks', 'dim');
+    print('  pong tetris snake  yes, really', 'dim');
     print('  contact            how to reach me', 'dim');
     print('  clear              wipe the screen', 'dim');
+    print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
     print('Letterhome/   ClickGuard/   Go-on-PR/   404/');
@@ -241,6 +283,28 @@ function runCommand(raw) {
   else if (c === 'whoami') {
     print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
   }
+  else if (c === 'about') {
+    print('canadian, working remote, usually somewhere warmer than canada.');
+    print('i build websites and tools, mostly to fix things that annoyed me.', 'dim');
+    print('the stuff listed here is the work i actually care about.', 'dim');
+  }
+  else if (c === 'now') {
+    print('currently: keeping the projects alive and poking at new ideas.');
+    print('latest ship: Go on PR.', 'dim');
+    print('always up for an interesting problem.', 'dim');
+  }
+  else if (c === 'stats') {
+    print('projects shipped:  ' + Object.keys(projects).length + ' (and counting)');
+    print('stack in rotation: Node.js, Swift, Next.js, WordPress, vanilla JS', 'dim');
+    print('building since:    2024', 'dim');
+  }
+  else if (c === 'sound') {
+    const want = arg.toLowerCase();
+    soundOn = want === 'off' ? false : want === 'on' ? true : !soundOn;
+    if (soundOn) clickSound();
+    print('keyboard sound ' + (soundOn ? 'on. clackety clack.' : 'off.'), 'dim');
+  }
+  else if (c === 'snake') { print('booting snake...  arrows / WASD to turn, [ esc ] quit', 'dim'); playSnake(); }
   else if (c === 'cat') {
     const p = resolveProject(arg);
     if (p) { print(p.name); print(p.desc, 'dim'); print(p.stack, 'dim'); }
@@ -371,8 +435,9 @@ runTerminal();
 ──────────────────────────────────────────────── */
 let pongActive = false;
 let tetrisActive = false;
+let snakeActive = false;
 function playPong() {
-  if (pongActive || tetrisActive) return;
+  if (pongActive || tetrisActive || snakeActive) return;
   pongActive = true;
   if (input) input.blur();
 
@@ -558,7 +623,7 @@ function playPong() {
    tetris — CRT takeover of the terminal screen
 ──────────────────────────────────────────────── */
 function playTetris() {
-  if (pongActive || tetrisActive) return;
+  if (pongActive || tetrisActive || snakeActive) return;
   tetrisActive = true;
   if (input) input.blur();
 
@@ -738,4 +803,118 @@ function playTetris() {
 
   spawn();
   raf = requestAnimationFrame(frame);
+}
+
+
+/* ────────────────────────────────────────────────
+   snake — CRT takeover of the terminal screen
+──────────────────────────────────────────────── */
+function playSnake() {
+  if (pongActive || tetrisActive || snakeActive) return;
+  snakeActive = true;
+  if (input) input.blur();
+
+  const prevOverflow = body.style.overflow;
+  body.style.overflow = 'hidden';
+  body.scrollTop = 0;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pong';
+  const canvas = document.createElement('canvas');
+  const scan = document.createElement('div');
+  scan.className = 'pong-scan';
+  wrap.appendChild(canvas);
+  wrap.appendChild(scan);
+  body.appendChild(wrap);
+
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = body.clientWidth, H = body.clientHeight;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const cell = Math.max(10, Math.floor(Math.min(W, H) / 18));
+  const cols = Math.floor(W / cell), rows = Math.floor(H / cell);
+  const ox = Math.floor((W - cols * cell) / 2), oy = Math.floor((H - rows * cell) / 2);
+
+  let snake = [{ x: (cols / 2) | 0, y: (rows / 2) | 0 }];
+  let dir = { x: 1, y: 0 }, nextDir = { x: 1, y: 0 };
+  let food = randFood();
+  let score = 0, over = false;
+  let stepMs = 130, acc = 0, last = performance.now(), raf;
+
+  function randFood() {
+    let f;
+    do { f = { x: (Math.random() * cols) | 0, y: (Math.random() * rows) | 0 }; }
+    while (snake.some(s => s.x === f.x && s.y === f.y));
+    return f;
+  }
+
+  function onKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); quit(); return; }
+    const k = e.key.toLowerCase();
+    const map = { arrowup: [0,-1], arrowdown: [0,1], arrowleft: [-1,0], arrowright: [1,0], w: [0,-1], s: [0,1], a: [-1,0], d: [1,0] };
+    if (map[k]) {
+      e.preventDefault();
+      const [x, y] = map[k];
+      if (x !== -dir.x || y !== -dir.y) nextDir = { x, y }; // no instant reverse
+    }
+  }
+  window.addEventListener('keydown', onKey);
+
+  function tick() {
+    dir = nextDir;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows || snake.some(s => s.x === head.x && s.y === head.y)) {
+      over = true; return;
+    }
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++; food = randFood();
+      if (stepMs > 60) stepMs -= 4; // speed up
+    } else {
+      snake.pop();
+    }
+  }
+
+  function draw(now) {
+    const dt = now - last; last = now;
+    if (!over) { acc += dt; while (acc >= stepMs) { tick(); acc -= stepMs; if (over) break; } }
+
+    ctx.fillStyle = '#060a08'; ctx.fillRect(0, 0, W, H);
+    // food
+    ctx.fillStyle = '#ff6b6b'; ctx.shadowColor = '#ff6b6b'; ctx.shadowBlur = 10;
+    ctx.fillRect(ox + food.x * cell + 2, oy + food.y * cell + 2, cell - 4, cell - 4);
+    // snake
+    ctx.fillStyle = '#6cf0a0'; ctx.shadowColor = '#6cf0a0'; ctx.shadowBlur = 8;
+    snake.forEach(s => ctx.fillRect(ox + s.x * cell + 1, oy + s.y * cell + 1, cell - 2, cell - 2));
+    ctx.shadowBlur = 0;
+    // score
+    ctx.fillStyle = 'rgba(108,240,160,0.85)'; ctx.textAlign = 'left'; ctx.font = '700 14px Menlo, monospace';
+    ctx.fillText('score ' + score, ox + 4, oy + 16);
+    ctx.textAlign = 'right'; ctx.font = '11px Menlo, monospace'; ctx.fillStyle = 'rgba(108,240,160,0.6)';
+    ctx.fillText('[ esc ] quit', ox + cols * cell - 4, oy + 16);
+
+    if (over) {
+      ctx.textAlign = 'center'; ctx.fillStyle = '#6cf0a0'; ctx.font = '700 22px Menlo, monospace';
+      ctx.fillText('GAME OVER', W / 2, H / 2 - 4);
+      ctx.font = '12px Menlo, monospace'; ctx.fillStyle = 'rgba(108,240,160,0.7)';
+      ctx.fillText('score ' + score + '  ·  [ esc ] to return', W / 2, H / 2 + 20);
+    }
+    raf = requestAnimationFrame(draw);
+  }
+
+  function quit() {
+    if (!snakeActive) return;
+    snakeActive = false;
+    cancelAnimationFrame(raf);
+    window.removeEventListener('keydown', onKey);
+    wrap.remove();
+    body.style.overflow = prevOverflow;
+    if (input && window.matchMedia('(pointer: fine)').matches) input.focus();
+    print('thanks for playing.', 'dim');
+    scrollTermToBottom();
+  }
+
+  raf = requestAnimationFrame(draw);
 }
