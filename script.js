@@ -310,7 +310,7 @@ function runCommand(raw) {
     if (soundOn) clickSound();
     print('keyboard sound ' + (soundOn ? 'on. clackety clack.' : 'off.'), 'dim');
   }
-  else if (c === 'snake') { print('booting snake...  arrows / WASD to turn, [ esc ] quit', 'dim'); playSnake(); }
+  else if (c === 'snake') { print('booting snake...  arrows / WASD / swipe to turn  ·  [ esc ] quit', 'dim'); playSnake(); }
   else if (c === 'cat') {
     const p = resolveProject(arg);
     if (p) { print(p.name); print(p.desc, 'dim'); print(p.stack, 'dim'); }
@@ -337,8 +337,8 @@ function runCommand(raw) {
     const st = body.querySelector('.t-static'); if (st) st.remove();
   }
   else if (c === 'matrix') { matrixRain(); print('wake up, neo...', 'highlight'); }
-  else if (c === 'pong') { print('booting pong...  [ esc ] to quit, mouse / arrows to move', 'dim'); playPong(); }
-  else if (c === 'tetris') { print('booting tetris...  ← → move · ↑ rotate · space drop · [ esc ] quit', 'dim'); playTetris(); }
+  else if (c === 'pong') { print('booting pong...  move: mouse / arrows / drag  ·  [ esc ] quit', 'dim'); playPong(); }
+  else if (c === 'tetris') { print('booting tetris...  arrows + space, or swipe + tap  ·  [ esc ] quit', 'dim'); playTetris(); }
   else if (c === 'sudo') { print('nice try. you are not in the sudoers file. this incident will be reported.', 't-error'); }
   else if (c === 'rm' && /(-rf|--no-preserve-root)/.test(arg)) { print('absolutely not.', 't-error'); }
   else if (c === 'coffee') { print('brewing... ☕ always.', 'highlight'); }
@@ -741,6 +741,21 @@ function playTetris() {
   }
   window.addEventListener('keydown', onKey);
 
+  // touch: swipe left/right to move, down to hard drop, up or tap to rotate
+  let tsx = 0, tsy = 0;
+  function tStart(e) { const t = e.touches[0]; tsx = t.clientX; tsy = t.clientY; }
+  function tEnd(e) {
+    if (over) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - tsx, dy = t.clientY - tsy, ax = Math.abs(dx), ay = Math.abs(dy);
+    if (ax < 16 && ay < 16) { tryRotate(); return; }
+    if (ax > ay) { if (dx > 0) { if (!collide(cur, curX + 1, curY)) curX++; } else { if (!collide(cur, curX - 1, curY)) curX--; } }
+    else { if (dy > 0) hardDrop(); else tryRotate(); }
+  }
+  canvas.addEventListener('touchstart', tStart, { passive: true });
+  canvas.addEventListener('touchend', tEnd, { passive: true });
+  wrap.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
   function block(x, y, color, glow) {
     ctx.fillStyle = color;
     if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 8; }
@@ -867,6 +882,20 @@ function playSnake() {
     }
   }
   window.addEventListener('keydown', onKey);
+
+  // touch: swipe to turn
+  let tsx = 0, tsy = 0;
+  function tStart(e) { const t = e.touches[0]; tsx = t.clientX; tsy = t.clientY; }
+  function tEnd(e) {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - tsx, dy = t.clientY - tsy;
+    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
+    const nd = Math.abs(dx) > Math.abs(dy) ? { x: dx > 0 ? 1 : -1, y: 0 } : { x: 0, y: dy > 0 ? 1 : -1 };
+    if (nd.x !== -dir.x || nd.y !== -dir.y) nextDir = nd;
+  }
+  canvas.addEventListener('touchstart', tStart, { passive: true });
+  canvas.addEventListener('touchend', tEnd, { passive: true });
+  wrap.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
   function tick() {
     dir = nextDir;
