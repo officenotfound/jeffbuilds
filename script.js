@@ -222,7 +222,7 @@ function scrollTermToBottom() {
 }
 
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const COMMANDS = ['help', 'ls', 'cat', 'open', 'whoami', 'about', 'now', 'stats', 'theme', 'crt', 'sound', 'contact', 'clear', 'pong', 'tetris', 'snake'];
+const COMMANDS = ['help', 'ls', 'cat', 'open', 'whoami', 'about', 'now', 'stats', 'uses', 'theme', 'crt', 'sound', 'contact', 'clear', 'pong', 'tetris', 'snake'];
 
 /* ── optional keyboard click sound ── */
 let soundOn = false;
@@ -270,6 +270,7 @@ function runCommand(raw) {
     print('  open <project>     launch a project', 'dim');
     print('  about / now        who i am, what i am up to', 'dim');
     print('  whoami / stats     the short version', 'dim');
+    print('  uses               what this site is built with', 'dim');
     print('  theme / crt        flip the lights / retro mode', 'dim');
     print('  sound              toggle keyboard clicks', 'dim');
     print('  pong tetris snake  yes, really', 'dim');
@@ -297,6 +298,14 @@ function runCommand(raw) {
     print('projects shipped:  ' + Object.keys(projects).length + ' (and counting)');
     print('stack in rotation: Node.js, Swift, Next.js, WordPress, vanilla JS', 'dim');
     print('building since:    2024', 'dim');
+  }
+  else if (c === 'uses') {
+    print('how this site is made:');
+    print('  os         macOS', 'dim');
+    print('  code       hand-written, vanilla js, no framework, 0 deps', 'dim');
+    print('  fonts      JetBrains Mono + Inter', 'dim');
+    print('  hosting    github pages, cloudflare dns', 'dim');
+    print('  analytics  goatcounter (no cookies)', 'dim');
   }
   else if (c === 'sound') {
     const want = arg.toLowerCase();
