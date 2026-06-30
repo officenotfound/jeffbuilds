@@ -84,17 +84,11 @@ const observer = new IntersectionObserver(entries => {
 
 document.querySelectorAll('.project').forEach(el => observer.observe(el));
 
-/* ── spotlight follows mouse (subtle) ── */
-const spotlight = document.querySelector('.spotlight');
-let rafId;
-document.addEventListener('mousemove', e => {
-  cancelAnimationFrame(rafId);
-  rafId = requestAnimationFrame(() => {
-    const x = (e.clientX / window.innerWidth  - 0.5) * 30;
-    const y = (e.clientY / window.innerHeight - 0.5) * 15;
-    spotlight.style.transform = `translateX(calc(-50% + ${x}px)) translateY(${y}px)`;
-  });
-}, { passive: true });
+/* ── hello, devtools ── */
+console.log('%chey, you opened devtools 👀', 'color:#4d9fff;font-weight:700;font-size:13px');
+console.log('%cthis whole thing is hand-coded. no framework, no build step, 0 dependencies.', 'color:#888');
+console.log('%csource → https://github.com/officenotfound/jeffbuilds', 'color:#888');
+console.log('%cps: type `help` in the terminal up top. there are games in here.', 'color:#888');
 
 
 /* ────────────────────────────────────────────────
