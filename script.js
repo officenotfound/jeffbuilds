@@ -345,6 +345,13 @@ function runCommand(raw) {
     body.querySelectorAll('.t-line:not(.t-input-line)').forEach(l => l.remove());
     const st = body.querySelector('.t-static'); if (st) st.remove();
   }
+  else if (c === 'radio') {
+    if (window._bellPlayer) {
+      window._bellPlayer.open();
+      window._bellPlayer.play();
+      print('tuning in to art bell. coast to coast, baby.', 'dim');
+    }
+  }
   else if (c === 'matrix') { matrixRain(); print('wake up, neo...', 'highlight'); }
   else if (c === 'pong') { print('booting pong...  move: mouse / arrows / drag  ·  [ esc ] quit', 'dim'); playPong(); }
   else if (c === 'tetris') { print('booting tetris...  arrows + space, or swipe + tap  ·  [ esc ] quit', 'dim'); playTetris(); }
@@ -962,3 +969,209 @@ function playSnake() {
 
   raf = requestAnimationFrame(draw);
 }
+
+/* ── Art Bell / Coast to Coast player ── */
+(function () {
+  const SOURCES = [
+    'the-ultimate-art-bell-collection_202201',
+    'ArtBell_Somewhere_In_Time'
+  ];
+
+  let episodes = [], currentIdx = -1, audio = null;
+  let playing = false, shuffleOn = false, expanded = false;
+  let loaded = false, loading = false;
+  let shuffleQueue = [];
+
+  const playerEl   = document.getElementById('bell-player');
+  const ppBtn      = document.getElementById('bell-pp');
+  const chevronBtn = document.getElementById('bell-chevron');
+  const panelEl    = document.getElementById('bell-panel');
+  const epLabel    = document.getElementById('bell-ep-label');
+  const listEl     = document.getElementById('bell-list');
+  const seekEl     = document.getElementById('bell-seek');
+  const fillEl     = document.getElementById('bell-fill');
+  const timeEl     = document.getElementById('bell-time');
+  const durEl      = document.getElementById('bell-dur');
+  const shuffleBtn = document.getElementById('bell-shuffle');
+  const nextBtn    = document.getElementById('bell-next');
+
+  function fmt(s) {
+    if (!isFinite(s) || s < 0) return '--:--';
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+    return h ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+             : `${m}:${String(sec).padStart(2,'0')}`;
+  }
+
+  function getAudio() {
+    if (audio) return audio;
+    audio = new Audio();
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      fillEl.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      timeEl.textContent = fmt(audio.currentTime);
+    });
+    audio.addEventListener('loadedmetadata', () => { durEl.textContent = fmt(audio.duration); });
+    audio.addEventListener('ended', advanceEpisode);
+    audio.addEventListener('error', advanceEpisode);
+    return audio;
+  }
+
+  async function playIdx(idx) {
+    if (idx < 0 || idx >= episodes.length) return;
+    currentIdx = idx;
+    const ep = episodes[idx];
+
+    if (!ep.url) {
+      listEl.querySelectorAll('.bell-row')[idx]
+        && (listEl.querySelectorAll('.bell-row')[idx].querySelector('.bell-row-title').textContent = '⏳ ' + ep.title);
+      const url = await resolveUrl(ep);
+      if (!url) { advanceEpisode(); return; }
+    }
+
+    const a = getAudio();
+    a.src = ep.url;
+    a.play().catch(() => {});
+    playing = true;
+    playerEl.classList.add('on');
+    ppBtn.textContent = '⏸';
+    epLabel.textContent = ep.title;
+    fillEl.style.width = '0';
+    durEl.textContent = '--:--';
+    timeEl.textContent = '0:00';
+    highlightRow(idx);
+  }
+
+  async function resolveUrl(ep) {
+    try {
+      const res = await fetch(`https://archive.org/metadata/${ep.identifier}/files`);
+      const data = await res.json();
+      const files = Array.isArray(data) ? data : (data.result || []);
+      const mp3 = files.find(f => f.name?.toLowerCase().endsWith('.mp3') && f.source === 'original')
+               || files.find(f => f.name?.toLowerCase().endsWith('.mp3'));
+      if (mp3) { ep.url = `https://archive.org/download/${ep.identifier}/${encodeURIComponent(mp3.name)}`; }
+    } catch(e) {}
+    return ep.url || null;
+  }
+
+  function advanceEpisode() {
+    if (!episodes.length) return;
+    if (shuffleOn) {
+      if (!shuffleQueue.length) buildShuffle();
+      playIdx(shuffleQueue.shift());
+    } else {
+      playIdx((currentIdx + 1) % episodes.length);
+    }
+  }
+
+  function buildShuffle() {
+    shuffleQueue = episodes.map((_, i) => i).filter(i => i !== currentIdx);
+    for (let i = shuffleQueue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffleQueue[i], shuffleQueue[j]] = [shuffleQueue[j], shuffleQueue[i]];
+    }
+  }
+
+  function highlightRow(idx) {
+    listEl.querySelectorAll('.bell-row').forEach((r, i) => r.classList.toggle('on', i === idx));
+    const active = listEl.querySelector('.bell-row.on');
+    if (active) active.scrollIntoView({ block: 'nearest' });
+  }
+
+  ppBtn.addEventListener('click', async () => {
+    if (!loaded && !loading) await loadEpisodes();
+    if (!episodes.length) return;
+    if (playing) {
+      getAudio().pause();
+      playing = false;
+      playerEl.classList.remove('on');
+      ppBtn.textContent = '▶';
+    } else {
+      if (currentIdx === -1) { playIdx(0); }
+      else { getAudio().play().catch(() => {}); playing = true; playerEl.classList.add('on'); ppBtn.textContent = '⏸'; }
+    }
+  });
+
+  chevronBtn.addEventListener('click', async () => {
+    expanded = !expanded;
+    panelEl.hidden = !expanded;
+    chevronBtn.textContent = expanded ? '▴' : '▾';
+    if (expanded && !loaded && !loading) await loadEpisodes();
+  });
+
+  nextBtn.addEventListener('click', advanceEpisode);
+
+  shuffleBtn.addEventListener('click', () => {
+    shuffleOn = !shuffleOn;
+    shuffleBtn.classList.toggle('on', shuffleOn);
+    if (shuffleOn) buildShuffle();
+  });
+
+  seekEl.addEventListener('click', e => {
+    const a = getAudio();
+    if (!a.duration) return;
+    const r = seekEl.getBoundingClientRect();
+    a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
+  });
+
+  async function loadEpisodes() {
+    loading = true;
+    listEl.innerHTML = '<div class="bell-hint">fetching episodes from archive.org...</div>';
+    const all = [];
+
+    for (const id of SOURCES) {
+      try {
+        const res  = await fetch(`https://archive.org/metadata/${id}`);
+        const data = await res.json();
+
+        if (data.files && data.files.length) {
+          const originals = data.files.filter(f => f.name?.toLowerCase().endsWith('.mp3') && f.source === 'original');
+          const mp3s = originals.length ? originals : data.files.filter(f => f.name?.toLowerCase().endsWith('.mp3'));
+          mp3s.forEach(f => {
+            const title = (f.title || f.name.replace(/\.mp3$/i,'').replace(/[_-]+/g,' ')).trim();
+            all.push({
+              title,
+              url: `https://archive.org/download/${id}/${encodeURIComponent(f.name)}`,
+              date: f.mtime ? new Date(parseInt(f.mtime)*1000).toISOString().slice(0,10) : '',
+              identifier: id
+            });
+          });
+        }
+
+        if (data.metadata?.mediatype === 'collection' || !data.files?.some(f => f.name?.toLowerCase().endsWith('.mp3'))) {
+          const sr = await fetch(
+            `https://archive.org/advancedsearch.php?q=collection:${id}&output=json&rows=200&fl[]=identifier,title,date&sort[]=date+asc`
+          );
+          const sd = await sr.json();
+          (sd.response?.docs || []).forEach(doc => {
+            all.push({ title: doc.title || doc.identifier, date: doc.date?.slice(0,10) || '', identifier: doc.identifier, url: null });
+          });
+        }
+      } catch(e) { console.warn('[bell]', id, e); }
+    }
+
+    // dedupe by title
+    const seen = new Set();
+    episodes = all.filter(ep => { const k = ep.title.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+    loaded = true;
+    loading = false;
+    renderList();
+  }
+
+  function renderList() {
+    if (!episodes.length) {
+      listEl.innerHTML = '<div class="bell-err">no episodes found</div>';
+      return;
+    }
+    listEl.innerHTML = episodes.map((ep, i) => `
+      <div class="bell-row${i === currentIdx ? ' on' : ''}" data-i="${i}">
+        <div class="bell-row-title">${ep.title}</div>
+        ${ep.date ? `<div class="bell-row-date">${ep.date}</div>` : ''}
+      </div>`).join('');
+    listEl.querySelectorAll('.bell-row').forEach(r =>
+      r.addEventListener('click', () => playIdx(parseInt(r.dataset.i)))
+    );
+  }
+
+  // terminal command: `radio`
+  window._bellPlayer = { open() { if (!expanded) chevronBtn.click(); }, play() { ppBtn.click(); } };
+})();
