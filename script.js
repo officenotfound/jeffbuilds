@@ -1202,6 +1202,9 @@ function playSnake() {
   if (volRange) volRange.addEventListener('input', () => setVolume(volRange.value / 100));
 
   playerEl.addEventListener('wheel', e => {
+    const overVol  = volRange && volRange.closest('.bell-vol')?.matches(':hover');
+    const overList = listEl?.matches(':hover');
+    if (overList) return;
     e.preventDefault();
     setVolume(getAudio().volume - e.deltaY * 0.001);
   }, { passive: false });
