@@ -981,12 +981,14 @@ function playSnake() {
   let playing = false, shuffleOn = false, expanded = false;
   let loaded = false, loading = false;
   let shuffleQueue = [];
+  let volFlashTimer = null;
 
   const playerEl   = document.getElementById('bell-player');
   const ppBtn      = document.getElementById('bell-pp');
   const chevronBtn = document.getElementById('bell-chevron');
   const panelEl    = document.getElementById('bell-panel');
   const epLabel    = document.getElementById('bell-ep-label');
+  const stationEl  = document.querySelector('.bell-station');
   const listEl     = document.getElementById('bell-list');
   const seekEl     = document.getElementById('bell-seek');
   const fillEl     = document.getElementById('bell-fill');
@@ -994,6 +996,7 @@ function playSnake() {
   const durEl      = document.getElementById('bell-dur');
   const shuffleBtn = document.getElementById('bell-shuffle');
   const nextBtn    = document.getElementById('bell-next');
+  const counterEl  = document.getElementById('bell-counter');
 
   function fmt(s) {
     if (!isFinite(s) || s < 0) return '--:--';
@@ -1002,9 +1005,15 @@ function playSnake() {
              : `${m}:${String(sec).padStart(2,'0')}`;
   }
 
+  function updateCounter() {
+    if (!counterEl) return;
+    counterEl.textContent = episodes.length ? `ep ${currentIdx + 1} / ${episodes.length}` : '';
+  }
+
   function getAudio() {
     if (audio) return audio;
     audio = new Audio();
+    audio.volume = 0.8;
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration) return;
       fillEl.style.width = (audio.currentTime / audio.duration * 100) + '%';
@@ -1022,8 +1031,8 @@ function playSnake() {
     const ep = episodes[idx];
 
     if (!ep.url) {
-      listEl.querySelectorAll('.bell-row')[idx]
-        && (listEl.querySelectorAll('.bell-row')[idx].querySelector('.bell-row-title').textContent = '⏳ ' + ep.title);
+      const row = listEl.querySelectorAll('.bell-row')[idx];
+      if (row) row.querySelector('.bell-row-title').textContent = '⏳ ' + ep.title;
       const url = await resolveUrl(ep);
       if (!url) { advanceEpisode(); return; }
     }
@@ -1038,6 +1047,7 @@ function playSnake() {
     fillEl.style.width = '0';
     durEl.textContent = '--:--';
     timeEl.textContent = '0:00';
+    updateCounter();
     highlightRow(idx);
   }
 
@@ -1113,6 +1123,21 @@ function playSnake() {
     a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
   });
 
+  // scroll wheel volume
+  playerEl.addEventListener('wheel', e => {
+    e.preventDefault();
+    const a = getAudio();
+    a.volume = Math.min(1, Math.max(0, a.volume - e.deltaY * 0.001));
+    const pct = Math.round(a.volume * 100);
+    stationEl.textContent = `vol ${pct}%`;
+    stationEl.style.display = 'block';
+    clearTimeout(volFlashTimer);
+    volFlashTimer = setTimeout(() => {
+      stationEl.textContent = 'live from the high desert';
+      if (playing) stationEl.style.display = '';
+    }, 1200);
+  }, { passive: false });
+
   async function loadEpisodes() {
     loading = true;
     listEl.innerHTML = '<div class="bell-hint">fetching episodes from archive.org...</div>';
@@ -1124,8 +1149,19 @@ function playSnake() {
         const data = await res.json();
 
         if (data.files && data.files.length) {
-          const originals = data.files.filter(f => f.name?.toLowerCase().endsWith('.mp3') && f.source === 'original');
-          const mp3s = originals.length ? originals : data.files.filter(f => f.name?.toLowerCase().endsWith('.mp3'));
+          const originals = data.files.filter(f =>
+            f.name?.toLowerCase().endsWith('.mp3') &&
+            f.source === 'original' &&
+            !f.name.toLowerCase().includes('/extras/') &&
+            !f.name.toLowerCase().startsWith('extras/')
+          );
+          const mp3s = originals.length
+            ? originals
+            : data.files.filter(f =>
+                f.name?.toLowerCase().endsWith('.mp3') &&
+                !f.name.toLowerCase().includes('/extras/') &&
+                !f.name.toLowerCase().startsWith('extras/')
+              );
           mp3s.forEach(f => {
             const title = (f.title || f.name.replace(/\.mp3$/i,'').replace(/[_-]+/g,' ')).trim();
             all.push({
@@ -1154,6 +1190,8 @@ function playSnake() {
     episodes = all.filter(ep => { const k = ep.title.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
     loaded = true;
     loading = false;
+    stationEl.textContent = 'live from the high desert';
+    updateCounter();
     renderList();
   }
 
