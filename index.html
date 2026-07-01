@@ -173,7 +173,7 @@
   </footer>
 
   <div id="bell-player" class="bell-player">
-    <div class="bell-bar">
+    <div class="bell-bar" id="bell-bar">
       <button class="bell-pp" id="bell-pp" aria-label="Play/pause Art Bell">▶</button>
       <span class="bell-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="bell-info">
@@ -182,19 +182,38 @@
       </span>
       <button class="bell-chevron" id="bell-chevron" aria-label="Browse episodes">▾</button>
     </div>
+    <div class="bell-mini-progress" id="bell-mini-progress"><div class="bell-mini-fill" id="bell-mini-fill"></div></div>
     <div class="bell-panel" id="bell-panel" hidden>
+      <div class="bell-transport">
+        <button class="bell-transport-btn" id="bell-prev" aria-label="Previous episode">
+          <span class="bell-transport-icon">⏮</span>
+          <span class="bell-transport-label">prev</span>
+        </button>
+        <button class="bell-transport-btn bell-transport-main" id="bell-pp2" aria-label="Play/pause">
+          <span class="bell-transport-icon" id="bell-pp2-icon">▶</span>
+          <span class="bell-transport-label" id="bell-pp2-label">play</span>
+        </button>
+        <button class="bell-transport-btn" id="bell-next" aria-label="Next episode">
+          <span class="bell-transport-icon">⏭</span>
+          <span class="bell-transport-label">next</span>
+        </button>
+        <button class="bell-transport-btn" id="bell-shuffle" aria-label="Shuffle">
+          <span class="bell-transport-icon">⇄</span>
+          <span class="bell-transport-label">shuffle</span>
+        </button>
+      </div>
       <div class="bell-progress">
         <span class="bell-time" id="bell-time">0:00</span>
         <div class="bell-seek" id="bell-seek"><div class="bell-fill" id="bell-fill"></div></div>
         <span class="bell-dur" id="bell-dur">--:--</span>
-        <span class="bell-counter" id="bell-counter"></span>
-        <button class="bell-ctrl" id="bell-shuffle" title="Shuffle">⇄</button>
-        <button class="bell-ctrl" id="bell-next" title="Next episode">⏭</button>
       </div>
       <div class="bell-vol">
         <span class="bell-vol-icon">▸</span>
         <input type="range" class="bell-vol-range" id="bell-vol" min="0" max="100" value="80" aria-label="Volume">
         <span class="bell-vol-pct" id="bell-vol-pct">80%</span>
+      </div>
+      <div class="bell-search-wrap">
+        <input type="search" class="bell-search" id="bell-search" placeholder="search episodes..." autocomplete="off" spellcheck="false">
       </div>
       <div class="bell-list" id="bell-list">
         <div class="bell-hint">loading episodes...</div>

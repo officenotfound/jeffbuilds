@@ -1012,24 +1012,28 @@ function playSnake() {
   let playing = false, shuffleOn = false, expanded = false;
   let loaded = false, loading = false;
   let shuffleQueue = [];
-  let volFlashTimer = null;
 
   const playerEl   = document.getElementById('bell-player');
+  const barEl      = document.getElementById('bell-bar');
   const ppBtn      = document.getElementById('bell-pp');
+  const pp2Btn     = document.getElementById('bell-pp2');
+  const pp2Icon    = document.getElementById('bell-pp2-icon');
+  const pp2Label   = document.getElementById('bell-pp2-label');
+  const prevBtn    = document.getElementById('bell-prev');
+  const nextBtn    = document.getElementById('bell-next');
+  const shuffleBtn = document.getElementById('bell-shuffle');
   const chevronBtn = document.getElementById('bell-chevron');
   const panelEl    = document.getElementById('bell-panel');
   const epLabel    = document.getElementById('bell-ep-label');
-  const stationEl  = document.querySelector('.bell-station');
   const listEl     = document.getElementById('bell-list');
   const seekEl     = document.getElementById('bell-seek');
   const fillEl     = document.getElementById('bell-fill');
+  const miniFill   = document.getElementById('bell-mini-fill');
   const timeEl     = document.getElementById('bell-time');
   const durEl      = document.getElementById('bell-dur');
-  const shuffleBtn = document.getElementById('bell-shuffle');
-  const nextBtn    = document.getElementById('bell-next');
-  const counterEl  = document.getElementById('bell-counter');
   const volRange   = document.getElementById('bell-vol');
   const volPct     = document.getElementById('bell-vol-pct');
+  const searchEl   = document.getElementById('bell-search');
 
   function fmt(s) {
     if (!isFinite(s) || s < 0) return '--:--';
@@ -1038,9 +1042,13 @@ function playSnake() {
              : `${m}:${String(sec).padStart(2,'0')}`;
   }
 
-  function updateCounter() {
-    if (!counterEl) return;
-    counterEl.textContent = episodes.length ? `ep ${currentIdx + 1} / ${episodes.length}` : '';
+  function setPlayingUI(on) {
+    const glyph = on ? '⏸' : '▶';
+    const lbl   = on ? 'pause' : 'play';
+    ppBtn.textContent = glyph;
+    if (pp2Icon)  pp2Icon.textContent  = glyph;
+    if (pp2Label) pp2Label.textContent = lbl;
+    playerEl.classList.toggle('on', on);
   }
 
   function getAudio() {
@@ -1049,7 +1057,9 @@ function playSnake() {
     audio.volume = 0.8;
     audio.addEventListener('timeupdate', () => {
       if (!audio.duration) return;
-      fillEl.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      const pct = (audio.currentTime / audio.duration * 100) + '%';
+      fillEl.style.width = pct;
+      if (miniFill) miniFill.style.width = pct;
       timeEl.textContent = fmt(audio.currentTime);
     });
     audio.addEventListener('loadedmetadata', () => { durEl.textContent = fmt(audio.duration); });
@@ -1064,8 +1074,8 @@ function playSnake() {
     const ep = episodes[idx];
 
     if (!ep.url) {
-      const row = listEl.querySelectorAll('.bell-row')[idx];
-      if (row) row.querySelector('.bell-row-title').textContent = '⏳ ' + ep.title;
+      const rows = listEl.querySelectorAll('.bell-row');
+      if (rows[idx]) rows[idx].querySelector('.bell-row-title').textContent = '⏳ ' + ep.title;
       const url = await resolveUrl(ep);
       if (!url) { advanceEpisode(); return; }
     }
@@ -1074,14 +1084,15 @@ function playSnake() {
     a.src = ep.url;
     a.play().catch(() => {});
     playing = true;
-    playerEl.classList.add('on');
-    ppBtn.textContent = '⏸';
+    setPlayingUI(true);
     epLabel.textContent = ep.title;
     fillEl.style.width = '0';
+    if (miniFill) miniFill.style.width = '0';
     durEl.textContent = '--:--';
     timeEl.textContent = '0:00';
-    updateCounter();
     highlightRow(idx);
+    // auto-expand on first play
+    if (!expanded) openPanel();
   }
 
   async function resolveUrl(ep) {
@@ -1091,7 +1102,7 @@ function playSnake() {
       const files = Array.isArray(data) ? data : (data.result || []);
       const mp3 = files.find(f => f.name?.toLowerCase().endsWith('.mp3') && f.source === 'original')
                || files.find(f => f.name?.toLowerCase().endsWith('.mp3'));
-      if (mp3) { ep.url = `https://archive.org/download/${ep.identifier}/${encodeURIComponent(mp3.name)}`; }
+      if (mp3) ep.url = `https://archive.org/download/${ep.identifier}/${encodeURIComponent(mp3.name)}`;
     } catch(e) {}
     return ep.url || null;
   }
@@ -1104,6 +1115,11 @@ function playSnake() {
     } else {
       playIdx((currentIdx + 1) % episodes.length);
     }
+  }
+
+  function prevEpisode() {
+    if (!episodes.length) return;
+    playIdx(currentIdx <= 0 ? episodes.length - 1 : currentIdx - 1);
   }
 
   function buildShuffle() {
@@ -1120,33 +1136,52 @@ function playSnake() {
     if (active) active.scrollIntoView({ block: 'nearest' });
   }
 
-  ppBtn.addEventListener('click', async () => {
+  async function openPanel() {
+    expanded = true;
+    panelEl.hidden = false;
+    chevronBtn.textContent = '▴';
+    if (!loaded && !loading) await loadEpisodes();
+  }
+
+  function closePanel() {
+    expanded = false;
+    panelEl.hidden = true;
+    chevronBtn.textContent = '▾';
+  }
+
+  async function togglePlay() {
     if (!loaded && !loading) await loadEpisodes();
     if (!episodes.length) return;
     if (playing) {
       getAudio().pause();
       playing = false;
-      playerEl.classList.remove('on');
-      ppBtn.textContent = '▶';
+      setPlayingUI(false);
     } else {
       if (currentIdx === -1) { playIdx(0); }
-      else { getAudio().play().catch(() => {}); playing = true; playerEl.classList.add('on'); ppBtn.textContent = '⏸'; }
+      else { getAudio().play().catch(() => {}); playing = true; setPlayingUI(true); }
     }
+  }
+
+  // clicking the bar area (not the pp button) toggles the panel
+  barEl.addEventListener('click', async e => {
+    if (e.target === ppBtn || ppBtn.contains(e.target)) return;
+    expanded ? closePanel() : await openPanel();
   });
 
-  chevronBtn.addEventListener('click', async () => {
-    expanded = !expanded;
-    panelEl.hidden = !expanded;
-    chevronBtn.textContent = expanded ? '▴' : '▾';
-    if (expanded && !loaded && !loading) await loadEpisodes();
-  });
-
+  ppBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+  if (pp2Btn) pp2Btn.addEventListener('click', togglePlay);
+  if (prevBtn) prevBtn.addEventListener('click', prevEpisode);
   nextBtn.addEventListener('click', advanceEpisode);
 
   shuffleBtn.addEventListener('click', () => {
     shuffleOn = !shuffleOn;
     shuffleBtn.classList.toggle('on', shuffleOn);
     if (shuffleOn) buildShuffle();
+  });
+
+  chevronBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    expanded ? closePanel() : openPanel();
   });
 
   seekEl.addEventListener('click', e => {
@@ -1161,19 +1196,31 @@ function playSnake() {
     getAudio().volume = v;
     const pct = Math.round(v * 100);
     if (volRange) volRange.value = pct;
-    if (volPct) volPct.textContent = pct + '%';
+    if (volPct)   volPct.textContent = pct + '%';
   }
 
-  if (volRange) {
-    volRange.addEventListener('input', () => setVolume(volRange.value / 100));
-  }
+  if (volRange) volRange.addEventListener('input', () => setVolume(volRange.value / 100));
 
-  // scroll wheel volume
   playerEl.addEventListener('wheel', e => {
     e.preventDefault();
-    const a = getAudio();
-    setVolume(a.volume - e.deltaY * 0.001);
+    setVolume(getAudio().volume - e.deltaY * 0.001);
   }, { passive: false });
+
+  // episode search filter
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      const q = searchEl.value.toLowerCase().trim();
+      listEl.querySelectorAll('.bell-row').forEach(r => {
+        const title = episodes[parseInt(r.dataset.i)]?.title.toLowerCase() || '';
+        r.style.display = (!q || title.includes(q)) ? '' : 'none';
+      });
+      const anyVisible = [...listEl.querySelectorAll('.bell-row')].some(r => r.style.display !== 'none');
+      let noRes = listEl.querySelector('.bell-no-results');
+      if (!anyVisible && q) {
+        if (!noRes) { noRes = document.createElement('div'); noRes.className = 'bell-no-results'; noRes.textContent = 'no episodes match'; listEl.appendChild(noRes); }
+      } else if (noRes) noRes.remove();
+    });
+  }
 
   async function loadEpisodes() {
     loading = true;
@@ -1233,8 +1280,8 @@ function playSnake() {
     episodes = deduped;
     loaded = true;
     loading = false;
-    stationEl.textContent = 'live from the high desert';
-    updateCounter();
+    const stn = document.querySelector('.bell-station');
+    if (stn) stn.textContent = 'live from the high desert';
     renderList();
   }
 
