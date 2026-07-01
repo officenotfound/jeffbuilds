@@ -732,7 +732,7 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
 .bell-search:focus { border-color: #c8842a; }
 
 /* episode list */
-.bell-list { max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.bell-list { max-height: 340px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 .bell-hint { padding: 11px 10px; color: var(--muted); }
 .bell-row { padding: 7px 10px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; }
 .bell-row:last-child { border-bottom: none; }
