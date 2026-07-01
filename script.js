@@ -1238,16 +1238,43 @@ function playSnake() {
     renderList();
   }
 
+  const SOURCE_LABELS = {
+    'the-ultimate-art-bell-collection_202201': 'The Ultimate Art Bell Collection',
+    'ArtBell_Somewhere_In_Time': 'Art Bell: Somewhere in Time'
+  };
+
+  function fmtDate(d) {
+    if (!d) return '';
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
   function renderList() {
     if (!episodes.length) {
       listEl.innerHTML = '<div class="bell-err">no episodes found</div>';
       return;
     }
-    listEl.innerHTML = episodes.map((ep, i) => `
+    listEl.innerHTML = episodes.map((ep, i) => {
+      const score = epScore(ep.title);
+      const badge = score >= 80 ? '<span class="bell-badge">★ fan favorite</span>' : '';
+      const source = SOURCE_LABELS[ep.identifier] || ep.identifier || '';
+      return `
       <div class="bell-row${i === currentIdx ? ' on' : ''}" data-i="${i}">
-        <div class="bell-row-title">${ep.title}</div>
-        ${ep.date ? `<div class="bell-row-date">${ep.date}</div>` : ''}
-      </div>`).join('');
+        <div class="bell-row-preview">
+          <div class="bell-row-title">${ep.title}</div>
+          ${ep.date ? `<div class="bell-row-date">${ep.date}</div>` : ''}
+        </div>
+        <div class="bell-row-detail">
+          <div class="bell-row-full-title">${ep.title}</div>
+          <div class="bell-row-meta">
+            ${ep.date ? `<span>${fmtDate(ep.date)}</span>` : ''}
+            ${source ? `<span>${source}</span>` : ''}
+            ${badge}
+          </div>
+          <div class="bell-row-play">▶ play episode</div>
+        </div>
+      </div>`;
+    }).join('');
     listEl.querySelectorAll('.bell-row').forEach(r =>
       r.addEventListener('click', () => playIdx(parseInt(r.dataset.i)))
     );

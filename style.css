@@ -736,8 +736,25 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
 .bell-row:last-child { border-bottom: none; }
 .bell-row:hover { background: var(--surface-2); }
 .bell-row.on { background: rgba(200,132,42,0.1); }
+.bell-row-preview { display: block; }
 .bell-row-title { color: var(--text); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bell-row-date { color: var(--muted); font-size: 9px; margin-top: 2px; }
+
+.bell-row-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ease;
+  overflow: hidden;
+}
+.bell-row-detail > * { min-height: 0; overflow: hidden; }
+.bell-row:hover .bell-row-detail { grid-template-rows: 1fr; }
+.bell-row:hover .bell-row-preview { display: none; }
+
+.bell-row-full-title { color: var(--text); font-size: 10px; line-height: 1.4; margin-bottom: 5px; white-space: normal; }
+.bell-row-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 5px; }
+.bell-row-meta span { color: var(--muted); font-size: 9px; }
+.bell-badge { color: #c8842a !important; }
+.bell-row-play { font-size: 9px; color: #c8842a; letter-spacing: 0.05em; }
 .bell-err { padding: 10px; color: var(--red); font-size: 10px; }
 
 @media (max-width: 680px) {
