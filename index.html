@@ -172,11 +172,29 @@
     </div>
   </footer>
 
-  <button class="radio" id="radio" aria-label="Play Art Bell radio, 24/7" title="The Very Best of Art Bell · streaming 24/7 from u7radio.org">
-    <span class="radio-glyph" id="radio-glyph">▶</span>
-    <span class="radio-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <span class="radio-label">art bell · 24/7</span>
-  </button>
+  <div id="bell-player" class="bell-player">
+    <div class="bell-bar">
+      <button class="bell-pp" id="bell-pp" aria-label="Play/pause Art Bell">▶</button>
+      <span class="bell-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="bell-info">
+        <span class="bell-station">art bell · coast to coast</span>
+        <span class="bell-ep-label" id="bell-ep-label"></span>
+      </span>
+      <button class="bell-chevron" id="bell-chevron" aria-label="Browse episodes">▾</button>
+    </div>
+    <div class="bell-panel" id="bell-panel" hidden>
+      <div class="bell-progress">
+        <span class="bell-time" id="bell-time">0:00</span>
+        <div class="bell-seek" id="bell-seek"><div class="bell-fill" id="bell-fill"></div></div>
+        <span class="bell-dur" id="bell-dur">--:--</span>
+        <button class="bell-ctrl" id="bell-shuffle" title="Shuffle">⇄</button>
+        <button class="bell-ctrl" id="bell-next" title="Next episode">⏭</button>
+      </div>
+      <div class="bell-list" id="bell-list">
+        <div class="bell-hint">loading episodes...</div>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
