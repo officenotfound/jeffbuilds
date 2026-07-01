@@ -977,6 +977,37 @@ function playSnake() {
     'ArtBell_Somewhere_In_Time'
   ];
 
+  // Fan-ranked legendary episodes — matched against titles, highest score sorts first
+  const PRIORITY = [
+    { score: 100, terms: ['area 51 caller', 'area51 caller'] },
+    { score: 98,  terms: ['bob lazar'] },
+    { score: 95,  terms: ["mel's hole", 'mels hole', 'mel hole'] },
+    { score: 92,  terms: ['shadow people'] },
+    { score: 90,  terms: ['whitley strieber'] },
+    { score: 88,  terms: ['hale-bopp', 'hale bopp', 'hale_bopp'] },
+    { score: 86,  terms: ['ghost to ghost', 'ghosts to ghosts', 'ghost2ghost'] },
+    { score: 84,  terms: ['john titor', 'time travel'] },
+    { score: 82,  terms: ['remote viewing', 'remote view'] },
+    { score: 80,  terms: ['david icke'] },
+    { score: 78,  terms: ['gordon michael scallion', 'scallion'] },
+    { score: 76,  terms: ['ed dames'] },
+    { score: 74,  terms: ['richard hoagland'] },
+    { score: 72,  terms: ['cattle mutilation', 'cattle mutil'] },
+    { score: 70,  terms: ['bigfoot', 'sasquatch'] },
+    { score: 68,  terms: ['roswell'] },
+    { score: 66,  terms: ['mothman'] },
+    { score: 64,  terms: ['alien abduction', 'abduction'] },
+    { score: 62,  terms: ['dreamland'] },
+  ];
+
+  function epScore(title) {
+    const t = title.toLowerCase();
+    for (const p of PRIORITY) {
+      if (p.terms.some(term => t.includes(term))) return p.score;
+    }
+    return 0;
+  }
+
   let episodes = [], currentIdx = -1, audio = null;
   let playing = false, shuffleOn = false, expanded = false;
   let loaded = false, loading = false;
@@ -1185,9 +1216,15 @@ function playSnake() {
       } catch(e) { console.warn('[bell]', id, e); }
     }
 
-    // dedupe by title
+    // dedupe by title, then sort: legendary episodes first, then chronological
     const seen = new Set();
-    episodes = all.filter(ep => { const k = ep.title.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+    const deduped = all.filter(ep => { const k = ep.title.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+    deduped.sort((a, b) => {
+      const sd = epScore(b.title) - epScore(a.title);
+      if (sd !== 0) return sd;
+      return (a.date || '').localeCompare(b.date || '');
+    });
+    episodes = deduped;
     loaded = true;
     loading = false;
     stationEl.textContent = 'live from the high desert';
