@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Conciera/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
+  { type: 'output', text: "Conciera/   Nicago/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -100,6 +100,12 @@ const projects = {
     desc: 'An AI phone front desk for Canadian healthcare clinics that answers, books, and routes patient calls.',
     stack: 'Next.js · Supabase · Vapi · Twilio',
     aliases: ['conciera']
+  },
+  nicago: {
+    name: 'Nicago', url: 'https://www.nicago.com',
+    desc: 'Helping people escape high costs and relocate to Nicaragua. Guides, real estate referrals, and expat consulting.',
+    stack: 'Next.js · TypeScript · Tailwind · Supabase',
+    aliases: ['nica', 'nicaragua']
   },
   letterhome: {
     name: 'Letterhome', url: 'https://letterhome.ca',
@@ -222,7 +228,7 @@ function scrollTermToBottom() {
 }
 
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const COMMANDS = ['help', 'ls', 'cat', 'open', 'whoami', 'about', 'now', 'stats', 'uses', 'theme', 'crt', 'sound', 'contact', 'clear', 'pong', 'tetris', 'snake'];
+const COMMANDS = ['help', 'ls', 'cat', 'open', 'whoami', 'about', 'now', 'stats', 'uses', 'theme', 'crt', 'sound', 'radio', 'contact', 'clear', 'pong', 'tetris', 'snake'];
 
 /* ── optional keyboard click sound ── */
 let soundOn = false;
@@ -279,7 +285,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Conciera/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
+    print('Conciera/   Nicago/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
