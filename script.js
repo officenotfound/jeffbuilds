@@ -1028,6 +1028,8 @@ function playSnake() {
   const shuffleBtn = document.getElementById('bell-shuffle');
   const nextBtn    = document.getElementById('bell-next');
   const counterEl  = document.getElementById('bell-counter');
+  const volRange   = document.getElementById('bell-vol');
+  const volPct     = document.getElementById('bell-vol-pct');
 
   function fmt(s) {
     if (!isFinite(s) || s < 0) return '--:--';
@@ -1154,19 +1156,23 @@ function playSnake() {
     a.currentTime = ((e.clientX - r.left) / r.width) * a.duration;
   });
 
+  function setVolume(v) {
+    v = Math.min(1, Math.max(0, v));
+    getAudio().volume = v;
+    const pct = Math.round(v * 100);
+    if (volRange) volRange.value = pct;
+    if (volPct) volPct.textContent = pct + '%';
+  }
+
+  if (volRange) {
+    volRange.addEventListener('input', () => setVolume(volRange.value / 100));
+  }
+
   // scroll wheel volume
   playerEl.addEventListener('wheel', e => {
     e.preventDefault();
     const a = getAudio();
-    a.volume = Math.min(1, Math.max(0, a.volume - e.deltaY * 0.001));
-    const pct = Math.round(a.volume * 100);
-    stationEl.textContent = `vol ${pct}%`;
-    stationEl.style.display = 'block';
-    clearTimeout(volFlashTimer);
-    volFlashTimer = setTimeout(() => {
-      stationEl.textContent = 'live from the high desert';
-      if (playing) stationEl.style.display = '';
-    }, 1200);
+    setVolume(a.volume - e.deltaY * 0.001);
   }, { passive: false });
 
   async function loadEpisodes() {

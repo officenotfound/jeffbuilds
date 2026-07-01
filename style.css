@@ -684,6 +684,42 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
 .bell-ctrl:hover { color: var(--accent); }
 .bell-ctrl.on { color: var(--accent); }
 
+.bell-vol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.bell-vol-icon { color: var(--muted); font-size: 10px; flex-shrink: 0; }
+.bell-vol-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.bell-vol-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c8842a;
+  cursor: pointer;
+}
+.bell-vol-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #c8842a;
+  border: none;
+  cursor: pointer;
+}
+.bell-vol-pct { color: var(--muted); font-size: 9px; flex-shrink: 0; width: 28px; text-align: right; }
+
 .bell-list {
   max-height: 210px;
   overflow-y: auto;
