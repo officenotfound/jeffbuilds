@@ -758,26 +758,26 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
     width: calc(100vw - 24px);
     left: 12px;
     bottom: 12px;
-    /* cap at 60% of viewport so main page stays visible */
-    max-height: 60dvh;
+    max-height: 50dvh;
     display: flex;
     flex-direction: column;
+    /* hidden until user scrolls to bottom */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
   }
-  .bell-panel {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    flex: 1;
-    overflow: hidden;
+  .bell-player.mobile-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
-  /* fixed-height sections so the list gets whatever's left */
+  .bell-panel { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: hidden; }
   .bell-transport { flex-shrink: 0; }
   .bell-progress  { flex-shrink: 0; }
   .bell-vol       { flex-shrink: 0; }
   .bell-search-wrap { flex-shrink: 0; }
   .bell-list { max-height: none; flex: 1; overflow-y: auto; }
-
-  /* bigger tap targets */
   .bell-transport-btn { min-width: 40px; padding: 8px 10px; }
   .bell-transport-label { display: none; }
   .bell-transport-main { padding: 10px 16px; }
