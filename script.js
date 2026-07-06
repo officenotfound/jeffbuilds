@@ -1034,6 +1034,7 @@ function playSnake() {
   const volRange   = document.getElementById('bell-vol');
   const volPct     = document.getElementById('bell-vol-pct');
   const searchEl   = document.getElementById('bell-search');
+  const closeBtn   = document.getElementById('bell-close');
 
   function fmt(s) {
     if (!isFinite(s) || s < 0) return '--:--';
@@ -1091,8 +1092,8 @@ function playSnake() {
     durEl.textContent = '--:--';
     timeEl.textContent = '0:00';
     highlightRow(idx);
-    // auto-expand on first play
-    if (!expanded) openPanel();
+    // auto-expand on first play (desktop only)
+    if (!expanded && !window.matchMedia('(max-width: 680px)').matches) openPanel();
   }
 
   async function resolveUrl(ep) {
@@ -1169,7 +1170,8 @@ function playSnake() {
   });
 
   ppBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
-  if (pp2Btn) pp2Btn.addEventListener('click', togglePlay);
+  if (pp2Btn)  pp2Btn.addEventListener('click', togglePlay);
+  if (closeBtn) closeBtn.addEventListener('click', closePanel);
   if (prevBtn) prevBtn.addEventListener('click', prevEpisode);
   nextBtn.addEventListener('click', advanceEpisode);
 
