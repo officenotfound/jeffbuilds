@@ -758,19 +758,35 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
     width: calc(100vw - 24px);
     left: 12px;
     bottom: 12px;
-    max-height: calc(100vh - 80px);
+    /* cap at 60% of viewport so main page stays visible */
+    max-height: 60dvh;
     display: flex;
     flex-direction: column;
   }
-  .bell-panel { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: hidden; }
-  .bell-list { max-height: none; flex: 1; }
-  .bell-transport-btn { min-width: 36px; padding: 6px 8px; }
+  .bell-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+  /* fixed-height sections so the list gets whatever's left */
+  .bell-transport { flex-shrink: 0; }
+  .bell-progress  { flex-shrink: 0; }
+  .bell-vol       { flex-shrink: 0; }
+  .bell-search-wrap { flex-shrink: 0; }
+  .bell-list { max-height: none; flex: 1; overflow-y: auto; }
+
+  /* bigger tap targets */
+  .bell-transport-btn { min-width: 40px; padding: 8px 10px; }
   .bell-transport-label { display: none; }
-  .bell-transport-main { padding: 8px 12px; }
+  .bell-transport-main { padding: 10px 16px; }
   .bell-transport-main .bell-transport-label { display: block; }
-  .bell-row { padding: 9px 12px; }
+  .bell-row { padding: 11px 12px; }
   .bell-row-title { font-size: 11px; }
-  .bell-search { font-size: 11px; padding: 7px 10px; }
+  .bell-search { font-size: 12px; padding: 8px 10px; }
+  .bell-bar { padding: 11px 12px; }
+  .bell-pp { font-size: 12px; padding: 3px 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .bell-eq i { animation: none !important; height: 7px; }
