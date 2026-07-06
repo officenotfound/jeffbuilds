@@ -1335,17 +1335,4 @@ function playSnake() {
   // terminal command: `radio`
   window._bellPlayer = { open() { if (!expanded) chevronBtn.click(); }, play() { ppBtn.click(); } };
 
-  // on mobile: show player only once user scrolls near the footer
-  if (window.matchMedia('(max-width: 680px)').matches) {
-    const footer = document.querySelector('footer');
-    if (footer) {
-      const io = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) {
-          playerEl.classList.add('mobile-visible');
-          io.disconnect();
-        }
-      }, { threshold: 0.1 });
-      io.observe(footer);
-    }
-  }
 })();

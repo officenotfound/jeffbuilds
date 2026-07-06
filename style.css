@@ -774,27 +774,17 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
 
 @media (max-width: 680px) {
   .bell-player {
-    width: calc(100vw - 24px);
-    left: 12px;
-    bottom: 12px;
-    max-height: 50dvh;
-    display: flex;
-    flex-direction: column;
-    /* hidden until user scrolls to bottom */
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    /* inline in page flow, above footer */
+    position: static;
+    width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    max-height: none;
   }
-  .bell-player.mobile-visible {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .bell-panel { display: flex; flex-direction: column; min-height: 0; flex: 1; overflow: hidden; }
-  .bell-transport { flex-shrink: 0; }
-  .bell-progress  { flex-shrink: 0; }
-  .bell-vol       { flex-shrink: 0; }
-  .bell-search-wrap { flex-shrink: 0; }
-  .bell-list { max-height: none; flex: 1; overflow-y: auto; }
+  .bell-mini-progress { display: none; }
+  .bell-list { max-height: 52vh; overflow-y: auto; }
   .bell-transport-btn { min-width: 40px; padding: 8px 10px; }
   .bell-transport-label { display: none; }
   .bell-transport-main { padding: 10px 16px; }
@@ -802,7 +792,7 @@ body.crt.light { text-shadow: 0 0 2px rgba(37,99,235,0.35); }
   .bell-row { padding: 11px 12px; }
   .bell-row-title { font-size: 11px; }
   .bell-search { font-size: 12px; padding: 8px 10px; }
-  .bell-bar { padding: 11px 12px; }
+  .bell-bar { padding: 12px 14px; cursor: pointer; }
   .bell-pp { font-size: 12px; padding: 3px 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
