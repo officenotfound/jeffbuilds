@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Conciera/   Nicago/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -95,12 +95,6 @@ console.log('%cps: type `help` in the terminal up top. there are games in here.'
    interactive terminal
 ──────────────────────────────────────────────── */
 const projects = {
-  conciera: {
-    name: 'Conciera', url: 'https://conciera.ca',
-    desc: 'An AI phone front desk for Canadian healthcare clinics that answers, books, and routes patient calls.',
-    stack: 'Next.js · Supabase · Vapi · Twilio',
-    aliases: ['conciera']
-  },
   nicago: {
     name: 'Nicago', url: 'https://www.nicago.com',
     desc: 'Helping people escape high costs and relocate to Nicaragua. Guides, real estate referrals, and expat consulting.',
@@ -285,7 +279,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Conciera/   Nicago/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
+    print('Nicago/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
@@ -296,7 +290,7 @@ function runCommand(raw) {
     print('the stuff listed here is the work i actually care about.', 'dim');
   }
   else if (c === 'now') {
-    print('currently building: Conciera, an AI phone front desk for clinics.');
+    print('currently building: Nicago, a relocation site for people escaping high cost of living.');
     print('also keeping the other projects alive and poking at new ideas.', 'dim');
     print('always up for an interesting problem.', 'dim');
   }
