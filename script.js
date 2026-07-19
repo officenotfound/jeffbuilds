@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -95,6 +95,12 @@ console.log('%cps: type `help` in the terminal up top. there are games in here.'
    interactive terminal
 ──────────────────────────────────────────────── */
 const projects = {
+  tierraalta: {
+    name: 'Tierra Alta Ecolodge', url: 'https://tierraaltaecolodge.com',
+    desc: 'Website and booking system for an ecolodge in the mountains of Nicaragua. Built for friends.',
+    stack: 'Next.js · Cloudflare · TypeScript',
+    aliases: ['tierra', 'tierraalta', 'ecolodge']
+  },
   nicago: {
     name: 'Nicago', url: 'https://www.nicago.com',
     desc: 'Helping people escape high costs and relocate to Nicaragua. Guides, real estate referrals, and expat consulting.',
@@ -279,7 +285,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Nicago/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
+    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
