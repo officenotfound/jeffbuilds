@@ -97,7 +97,7 @@ console.log('%cps: type `help` in the terminal up top. there are games in here.'
 const projects = {
   tierraalta: {
     name: 'Tierra Alta Ecolodge', url: 'https://tierraaltaecolodge.com',
-    desc: 'Website and booking system for an ecolodge in the mountains of Nicaragua. Built for friends.',
+    desc: 'Website and booking system for an ecolodge in the mountains of Nicaragua.',
     stack: 'Next.js · Cloudflare · TypeScript',
     aliases: ['tierra', 'tierraalta', 'ecolodge']
   },
