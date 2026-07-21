@@ -291,7 +291,7 @@ function runCommand(raw) {
     print('jeff. builder by nature, curious by default.', 'highlight');
   }
   else if (c === 'about') {
-    print('canadian, working remote, usually somewhere warmer than canada.');
+    print('builder. working remote. usually somewhere with good internet and bad weather outside.');
     print('i build websites and tools, mostly to fix things that annoyed me.', 'dim');
     print('the stuff listed here is the work i actually care about.', 'dim');
   }
