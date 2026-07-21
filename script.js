@@ -12,7 +12,7 @@ toggle.addEventListener('click', () => {
 /* ── terminal typewriter ── */
 const lines = [
   { type: 'cmd',    text: 'whoami' },
-  { type: 'output', text: 'jeff. nomad by choice, builder by nature, curious by default.', highlight: true },
+  { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
   { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
@@ -288,7 +288,7 @@ function runCommand(raw) {
     print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
   }
   else if (c === 'whoami') {
-    print('jeff. nomad by choice, builder by nature, curious by default.', 'highlight');
+    print('jeff. builder by nature, curious by default.', 'highlight');
   }
   else if (c === 'about') {
     print('canadian, working remote, usually somewhere warmer than canada.');
