@@ -296,8 +296,8 @@ function runCommand(raw) {
     print('the stuff listed here is the work i actually care about.', 'dim');
   }
   else if (c === 'now') {
-    print('currently building: Nicago, a relocation site for people escaping high cost of living.');
-    print('also keeping the other projects alive and poking at new ideas.', 'dim');
+    print('currently building: Tierra Alta Ecolodge (website + booking system) and Nicago (relocation guides + real estate referrals).');
+    print('two projects, two very different problems, both keeping me busy.', 'dim');
     print('always up for an interesting problem.', 'dim');
   }
   else if (c === 'stats') {
