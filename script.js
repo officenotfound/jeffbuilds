@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   Go On PR/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   Narrative Domain/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -117,11 +117,11 @@ const projects = {
     desc: 'Kills the double click bug in Logitech mice. A software fix, not a new mouse.',
     stack: 'Swift · SwiftUI · Cocoa · macOS'
   },
-  goonpr: {
-    name: 'Go on PR', url: 'https://officenotfound.github.io/goon/',
+  narrativedomain: {
+    name: 'Narrative Domain', url: 'https://narrative-domain.pages.dev/',
     desc: 'A quietly elegant site for a boutique PR agency.',
     stack: 'Next.js · React · TypeScript · Tailwind',
-    aliases: ['goon', 'goonpr', 'go-on-pr', 'gopr', 'pr']
+    aliases: ['narrative', 'narrativedomain', 'pr']
   },
   '404': {
     name: '404: Office Not Found', url: 'https://404officenotfound.com',
