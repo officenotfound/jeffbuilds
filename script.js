@@ -14,7 +14,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   Narrative Domain/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   WatchTab/   Narrative Domain/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -116,6 +116,12 @@ const projects = {
     name: 'ClickGuard', url: 'https://github.com/officenotfound/Clickguard',
     desc: 'Kills the double click bug in Logitech mice. A software fix, not a new mouse.',
     stack: 'Swift · SwiftUI · Cocoa · macOS'
+  },
+  watchtab: {
+    name: 'WatchTab', url: 'https://github.com/officenotfound/watchtab',
+    desc: 'Auto-refresh and page monitor browser extension. Open source, no premium tier, no remote config backdoor.',
+    stack: 'TypeScript · Chrome Extension API',
+    aliases: ['watchtab', 'watch', 'wt']
   },
   narrativedomain: {
     name: 'Narrative Domain', url: 'https://narrative-domain.pages.dev/',
