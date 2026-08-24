@@ -119,7 +119,7 @@ const projects = {
   },
   watchtab: {
     name: 'WatchTab', url: 'https://github.com/officenotfound/watchtab',
-    desc: 'Auto-refresh and page monitor browser extension. Open source, no premium tier, no remote config backdoor.',
+    desc: 'Browser extension that refreshes tabs and watches pages for changes. Built because every alternative wants a subscription.',
     stack: 'TypeScript · Chrome Extension API',
     aliases: ['watchtab', 'watch', 'wt']
   },
