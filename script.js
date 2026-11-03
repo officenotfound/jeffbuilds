@@ -13,13 +13,15 @@ const body = document.getElementById('terminal-body');
 const cursor = document.getElementById('t-cursor');
 let done = false;
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sleep(ms) { return new Promise(r => setTimeout(r, reduceMotion ? 0 : ms)); }
 
 function jitter(base, variance = 0.4) {
   return base * (1 + (Math.random() - 0.5) * variance);
 }
 
 async function typeLine(text, el) {
+  if (reduceMotion) { el.textContent = text; return; }
   for (const ch of text) {
     el.textContent += ch;
     await sleep(jitter(32));
@@ -32,6 +34,7 @@ async function runTerminal() {
   for (const line of lines) {
     const el = document.createElement('div');
     el.className = 't-line';
+    el.setAttribute('aria-hidden', 'true');
     body.insertBefore(el, cursor);
 
     if (line.type === 'cmd') {
@@ -152,6 +155,7 @@ function initPrompt() {
   if (inputLine) return;
   cursor.style.display = 'none';
   body.classList.add('interactive');
+  body.setAttribute('role', 'log');
 
   inputLine = document.createElement('div');
   inputLine.className = 't-line t-input-line';
@@ -185,13 +189,16 @@ function initPrompt() {
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (history.length) { hi = Math.min(history.length, hi + 1); input.value = history[hi] || ''; }
+    } else if (e.key === 'Escape') {
+      input.blur();
     } else if (e.key === 'Tab') {
-      e.preventDefault();
+      // only hijack Tab for completion; otherwise let focus move on (no keyboard trap)
       const v = input.value.trim().toLowerCase();
-      if (!v) return;
-      const matches = COMMANDS.filter(c => c.startsWith(v));
+      const matches = v && !e.shiftKey ? COMMANDS.filter(c => c.startsWith(v)) : [];
+      if (!matches.length) return;
+      e.preventDefault();
       if (matches.length === 1) input.value = matches[0] + ' ';
-      else if (matches.length > 1) { echoCommand(input.value); print(matches.join('   '), 'dim'); scrollTermToBottom(); }
+      else { echoCommand(input.value); print(matches.join('   '), 'dim'); scrollTermToBottom(); }
     } else if (soundOn && e.key.length === 1) {
       clickSound();
     }
@@ -442,9 +449,7 @@ document.addEventListener('keydown', e => {
 /* ────────────────────────────────────────────────
    boot — runs last, after all definitions exist
 ──────────────────────────────────────────────── */
-// always type the intro; hide the crawlable static fallback now that JS is running
-const staticBlock = document.querySelector('.t-static');
-if (staticBlock) staticBlock.style.display = 'none';
+// always type the intro; the static copy stays in the DOM as screen-reader/crawler text
 runTerminal();
 
 
