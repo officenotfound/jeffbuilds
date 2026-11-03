@@ -279,9 +279,11 @@ function runCommand(raw) {
     print('  about / now        who i am, what i am up to', 'dim');
     print('  whoami / stats     the short version', 'dim');
     print('  uses               what this site is built with', 'dim');
-    print('  theme / crt        flip the lights / retro mode', 'dim');
+    print('  theme              check your current system theme', 'dim');
+    print('  crt                retro mode', 'dim');
     print('  sound              toggle keyboard clicks', 'dim');
     print('  pong tetris snake  yes, really', 'dim');
+    print('  radio              tune in to art bell', 'dim');
     print('  contact            how to reach me', 'dim');
     print('  clear              wipe the screen', 'dim');
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
@@ -304,7 +306,7 @@ function runCommand(raw) {
   }
   else if (c === 'stats') {
     print('projects shipped:  ' + Object.keys(projects).length + ' (and counting)');
-    print('stack in rotation: Node.js, Swift, Next.js, WordPress, vanilla JS', 'dim');
+    print('stack in rotation: Node.js, Rust, Swift, Next.js, Cloudflare Workers, WordPress, vanilla JS', 'dim');
     print('building since:    2024', 'dim');
   }
   else if (c === 'uses') {
