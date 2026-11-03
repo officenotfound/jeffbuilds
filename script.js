@@ -1,20 +1,10 @@
-/* ── theme toggle ── */
-const toggle = document.getElementById('theme-toggle');
-const saved = localStorage.getItem('theme');
-if (saved === 'light' || (!saved && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-  document.body.classList.add('light');
-}
-toggle.addEventListener('click', () => {
-  document.body.classList.toggle('light');
-  localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
-});
 
 /* ── terminal typewriter ── */
 const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   WatchTab/   Narrative Domain/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   QuietMic/   Carlando/   Narrative Domain/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -117,11 +107,17 @@ const projects = {
     desc: 'Kills the double click bug in Logitech mice. A software fix, not a new mouse.',
     stack: 'Swift · SwiftUI · Cocoa · macOS'
   },
-  watchtab: {
-    name: 'WatchTab', url: 'https://github.com/officenotfound/watchtab',
-    desc: 'Chrome extension that auto-refreshes tabs and alerts when a page changes. Free, open source.',
-    stack: 'TypeScript · Chrome Extension API',
-    aliases: ['watchtab', 'watch', 'wt']
+  quietmic: {
+    name: 'QuietMic', url: 'https://github.com/officenotfound/noise-cancel',
+    desc: 'Free, open-source AI noise canceller. Strips background noise from your mic for every app at once — no account, no GPU required.',
+    stack: 'Rust · Windows · macOS',
+    aliases: ['quietmic', 'noisecanceller', 'noise']
+  },
+  carlando: {
+    name: 'Carlando Mobile Brakes', url: 'https://carlandomobilebrakes.com',
+    desc: 'Fast, local-search-friendly site for a mobile brake, suspension, and tune-up service in Central Florida.',
+    stack: 'Cloudflare Workers · D1 · JavaScript · CSS',
+    aliases: ['carlando', 'brakes']
   },
   narrativedomain: {
     name: 'Narrative Domain', url: 'https://narrative-domain.pages.dev/',
@@ -291,7 +287,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   Go-on-PR/   404/');
+    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   QuietMic/   Carlando/   Narrative Domain/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. builder by nature, curious by default.', 'highlight');
@@ -337,8 +333,8 @@ function runCommand(raw) {
     else print('open: ' + (arg || '') + ': no such project. try `ls`.', 't-error');
   }
   else if (c === 'theme') {
-    document.getElementById('theme-toggle').click();
-    print('lights ' + (document.body.classList.contains('light') ? 'on' : 'off') + '.', 'dim');
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    print('this site follows your system theme (' + (isDark ? 'dark' : 'light') + ' mode). change it in your OS settings.', 'dim');
   }
   else if (c === 'crt') {
     document.body.classList.toggle('crt');
