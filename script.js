@@ -423,7 +423,7 @@ function matrixRain() {
       const ch = chars[Math.floor(Math.random() * chars.length)];
       const x = i * fontSize;
       const y = drops[i] * fontSize;
-      ctx.fillStyle = Math.random() > 0.92 ? '#cfe6ff' : '#4d9fff';
+      ctx.fillStyle = Math.random() > 0.92 ? '#e6fbff' : '#3ddcff';
       ctx.globalAlpha = fade;
       ctx.fillText(ch, x, y);
       if (y > h && Math.random() > 0.975) drops[i] = 0;
@@ -447,6 +447,7 @@ function matrixRain() {
 let keyBuf = '';
 document.addEventListener('keydown', e => {
   if (document.activeElement === input) return; // terminal handles its own
+  if (document.querySelector('dialog[open]')) return;
   if (e.key.length !== 1) return;
   keyBuf = (keyBuf + e.key.toLowerCase()).slice(-6);
   if (keyBuf === 'matrix') { matrixRain(); keyBuf = ''; }
@@ -977,3 +978,244 @@ function playSnake() {
 
   raf = requestAnimationFrame(draw);
 }
+
+
+/* ────────────────────────────────────────────────
+   flair: dot-grid background, card spotlight,
+   name scramble, scroll progress, command palette
+──────────────────────────────────────────────── */
+(function gridBackground() {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'bg-grid';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.prepend(canvas);
+  const ctx = canvas.getContext('2d');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const STEP = 28, RADIUS = 170;
+  let w = 0, h = 0, ink = '#888', hot = '#3ddcff';
+  let mx = -9999, my = -9999, glow = 0, target = 0, moved = false, raf = 0;
+
+  function readColors() {
+    const cs = getComputedStyle(document.documentElement);
+    ink = cs.getPropertyValue('--text').trim() || ink;
+    hot = cs.getPropertyValue('--accent').trim() || hot;
+  }
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    const ox = (w % STEP) / 2, oy = (h % STEP) / 2;
+    for (let y = oy; y <= h; y += STEP) {
+      for (let x = ox; x <= w; x += STEP) {
+        const dx = x - mx, dy = y - my, d2 = dx * dx + dy * dy;
+        let t = 0;
+        if (d2 < RADIUS * RADIUS) { t = 1 - Math.sqrt(d2) / RADIUS; t = t * t * glow; }
+        ctx.globalAlpha = 0.1 + t * 0.6;
+        ctx.fillStyle = t > 0.02 ? hot : ink;
+        ctx.beginPath();
+        ctx.arc(x, y, 1 + t * 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth; h = window.innerHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+  function tick() {
+    raf = 0;
+    glow += (target - glow) * 0.14;
+    if (Math.abs(target - glow) < 0.005) glow = target;
+    draw();
+    if (glow !== target || moved) { moved = false; raf = requestAnimationFrame(tick); }
+  }
+  function kick() { if (!raf) raf = requestAnimationFrame(tick); }
+
+  window.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse' || reduce.matches) return;
+    mx = e.clientX; my = e.clientY; target = 1; moved = true; kick();
+  }, { passive: true });
+  document.documentElement.addEventListener('mouseleave', () => { target = 0; kick(); });
+  window.addEventListener('resize', () => requestAnimationFrame(resize));
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); draw(); });
+  readColors();
+  resize();
+})();
+
+(function cardSpotlight() {
+  document.querySelectorAll('.project').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      if (e.pointerType !== 'mouse') return;
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    }, { passive: true });
+  });
+})();
+
+(function nameScramble() {
+  if (!window.matchMedia('(hover: hover)').matches) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const GLYPHS = 'abcdefghijklmnopqrstuvwxyz0123456789<>/_-+=*#';
+  document.querySelectorAll('.project').forEach(card => {
+    const el = card.querySelector('.project-name');
+    const text = el.textContent;
+    let raf = 0;
+    el.setAttribute('aria-label', text);
+    card.addEventListener('mouseenter', () => {
+      if (reduce.matches) return;
+      cancelAnimationFrame(raf);
+      const start = performance.now(), dur = 420;
+      (function step(now) {
+        const p = Math.min(1, (now - start) / dur);
+        const reveal = Math.floor(p * text.length);
+        el.textContent = [...text].map((c, i) =>
+          i < reveal || c === ' ' || c === ':' ? c : GLYPHS[(Math.random() * GLYPHS.length) | 0]
+        ).join('');
+        if (p < 1) raf = requestAnimationFrame(step); else el.textContent = text;
+      })(start);
+    });
+    card.addEventListener('mouseleave', () => { cancelAnimationFrame(raf); el.textContent = text; });
+  });
+})();
+
+(function scrollProgress() {
+  const bar = document.createElement('div');
+  bar.className = 'scroll-progress';
+  bar.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(bar);
+  let queued = false;
+  function update() {
+    queued = false;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+  }
+  window.addEventListener('scroll', () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+})();
+
+(function commandPalette() {
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const keyHint = document.getElementById('palette-key');
+  if (keyHint) keyHint.textContent = isMac ? '⌘K' : 'Ctrl K';
+
+  const items = [...document.querySelectorAll('.project')].map(a => ({
+    group: 'projects',
+    label: a.querySelector('.project-name').textContent,
+    hint: new URL(a.href).hostname.replace(/^www\./, ''),
+    url: a.href
+  }));
+  items.push(
+    { group: 'links', label: 'GitHub', hint: 'github.com/officenotfound', url: 'https://github.com/officenotfound' },
+    { group: 'links', label: 'Email', hint: '404officenotfound@gmail.com', url: 'mailto:404officenotfound@gmail.com' }
+  );
+
+  const dlg = document.createElement('dialog');
+  dlg.className = 'palette';
+  dlg.setAttribute('aria-label', 'Command palette');
+  dlg.innerHTML =
+    '<div class="pal-search"><span class="pal-prompt" aria-hidden="true">&gt;</span>' +
+    '<input class="pal-input" type="text" role="combobox" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" ' +
+    'placeholder="jump to a project" autocomplete="off" spellcheck="false" aria-label="Search projects and links"></div>' +
+    '<ul class="pal-list" id="pal-list" role="listbox" aria-label="Results"></ul>' +
+    '<div class="pal-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>';
+  document.body.appendChild(dlg);
+  const input = dlg.querySelector('.pal-input');
+  const list = dlg.querySelector('.pal-list');
+  let shown = [], active = 0;
+
+  function setActive(i, scroll) {
+    active = i;
+    list.querySelectorAll('.pal-item').forEach((li, n) => li.setAttribute('aria-selected', n === i ? 'true' : 'false'));
+    const li = list.querySelectorAll('.pal-item')[i];
+    input.setAttribute('aria-activedescendant', li ? li.id : '');
+    if (li && scroll) li.scrollIntoView({ block: 'nearest' });
+  }
+  function go(item) {
+    if (!item) return;
+    dlg.close();
+    if (item.url.startsWith('mailto:')) window.location.href = item.url;
+    else window.open(item.url, '_blank', 'noopener');
+  }
+  function render() {
+    const q = input.value.trim().toLowerCase();
+    shown = items.filter(it => !q || (it.label + ' ' + it.hint).toLowerCase().includes(q));
+    list.replaceChildren();
+    if (!shown.length) {
+      const li = document.createElement('li');
+      li.className = 'pal-empty';
+      li.textContent = 'no matches';
+      list.appendChild(li);
+      setActive(0, false);
+      return;
+    }
+    let group = '';
+    shown.forEach((it, i) => {
+      if (it.group !== group) {
+        group = it.group;
+        const g = document.createElement('li');
+        g.className = 'pal-group';
+        g.setAttribute('role', 'presentation');
+        g.textContent = group;
+        list.appendChild(g);
+      }
+      const li = document.createElement('li');
+      li.className = 'pal-item';
+      li.id = 'pal-opt-' + i;
+      li.setAttribute('role', 'option');
+      const name = document.createElement('span');
+      name.textContent = it.label;
+      const hint = document.createElement('small');
+      hint.textContent = it.hint;
+      li.append(name, hint);
+      li.addEventListener('mousemove', () => { if (active !== i) setActive(i, false); });
+      li.addEventListener('click', () => go(it));
+      list.appendChild(li);
+    });
+    setActive(0, false);
+  }
+  function open() {
+    if (dlg.open || pongActive || tetrisActive || snakeActive) return;
+    input.value = '';
+    render();
+    dlg.showModal();
+    input.focus();
+  }
+
+  input.addEventListener('input', render);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!shown.length) return;
+      const n = shown.length;
+      setActive((active + (e.key === 'ArrowDown' ? 1 : n - 1)) % n, true);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      go(shown[active]);
+    }
+  });
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      dlg.open ? dlg.close() : open();
+    }
+  });
+  const btn = document.getElementById('palette-btn');
+  if (btn) btn.addEventListener('click', open);
+})();
+
+(function menuClock() {
+  const el = document.getElementById('menu-clock');
+  if (!el) return;
+  const fmt = new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  const tick = () => {
+    const p = Object.fromEntries(fmt.formatToParts(new Date()).map(x => [x.type, x.value]));
+    el.textContent = p.weekday + ' ' + p.month + ' ' + p.day + '\u00a0\u00a0' + p.hour + ':' + p.minute + ' ' + p.dayPeriod;
+  };
+  tick();
+  setInterval(tick, 15000);
+})();
