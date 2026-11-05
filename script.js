@@ -4,7 +4,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -180,6 +180,7 @@ function initPrompt() {
 
   body.addEventListener('click', () => input.focus());
 
+
   const history = [];
   let hi = 0;
   input.addEventListener('keydown', e => {
@@ -301,7 +302,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404/');
+    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. builder by nature, curious by default.', 'highlight');
