@@ -383,6 +383,7 @@ html:not(.js) .hero-sub { opacity: 1; }
 .project:nth-child(6) { transition-delay: 0.30s; }
 .project:nth-child(7) { transition-delay: 0.36s; }
 .project:nth-child(8) { transition-delay: 0.42s; }
+.project:nth-child(9) { transition-delay: 0.48s; }
 
 /* ── more section ── */
 .more {

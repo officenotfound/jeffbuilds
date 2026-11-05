@@ -4,7 +4,7 @@ const lines = [
   { type: 'cmd',    text: 'whoami' },
   { type: 'output', text: 'jeff. builder by nature, curious by default.', highlight: true },
   { type: 'cmd',    text: 'ls ./shipped' },
-  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   QuietMic/   Carlando/   Narrative Domain/   404: Office Not Found/" },
+  { type: 'output', text: "Nicago/   Tierra Alta/   Letterhome/   Clickguard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404: Office Not Found/" },
   { type: 'cmd',    text: 'cat why.txt' },
   { type: 'output', text: 'the day job pays the bills. this is what i actually love.', highlight: true },
 ];
@@ -115,6 +115,12 @@ const projects = {
     desc: 'Free, open-source AI noise canceller. Strips background noise from your mic for every app at once — no account, no GPU required.',
     stack: 'Rust · Windows · macOS',
     aliases: ['quietmic', 'noisecanceller', 'noise']
+  },
+  deliclub: {
+    name: 'The Deli Club', url: 'https://thedeliclub.org',
+    desc: 'A one-page weekly lunch ordering site for a home deli in Managua. Pick a sandwich for each day, sign the order, and it goes out by WhatsApp.',
+    stack: 'Cloudflare Workers · Durable Objects · JavaScript · CSS',
+    aliases: ['deli', 'deliclub', 'thedeliclub']
   },
   carlando: {
     name: 'Carlando Mobile Brakes', url: 'https://carlandomobilebrakes.com',
@@ -295,7 +301,7 @@ function runCommand(raw) {
     print('  ↑ ↓ recall  ·  tab completes', 'dim');
   }
   else if (c === 'ls') {
-    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   QuietMic/   Carlando/   Narrative Domain/   404/');
+    print('Nicago/   Tierra Alta/   Letterhome/   ClickGuard/   QuietMic/   Carlando/   The Deli Club/   Narrative Domain/   404/');
   }
   else if (c === 'whoami') {
     print('jeff. builder by nature, curious by default.', 'highlight');
